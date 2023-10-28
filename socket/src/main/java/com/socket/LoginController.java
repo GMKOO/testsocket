@@ -43,11 +43,11 @@ public class LoginController {
 	}
 	
 	@PostMapping("/login")
-	public String login(@RequestParam("id") String id, @RequestParam("pw") String pw,HttpServletRequest request) {
+	public String login(@RequestParam("mid") String mid, @RequestParam("mpw") String mpw,HttpServletRequest request) {
 	    Map<String, Object> map = new HashMap<>();
 
-	    map.put("id", id);
-	    map.put("pw", pw);
+	    map.put("mid", mid);
+	    map.put("mpw", mpw);
 
 	    Map<String, Object> result = loginService.login(map);
 	    System.out.println(result.toString());
@@ -61,7 +61,7 @@ public class LoginController {
 
 
 	        session.setAttribute("mname", result.get("m_name"));
-	        session.setAttribute("id", id);
+	        session.setAttribute("mid", mid);
 	        
 	        session.setAttribute("count", result.get("count"));
 	      
@@ -83,9 +83,9 @@ public class LoginController {
 			// session.invalidate(); // 세션 삭제하기
 			session.removeAttribute("mname");
 		}
-		if (session.getAttribute("id") != null) {
+		if (session.getAttribute("mid") != null) {
 
-			session.removeAttribute("id");
+			session.removeAttribute("mid");
 		}
 		session.setMaxInactiveInterval(0); // 세션 유지시간을 0으로 =종료시키기
 		session.invalidate(); // 세션초기화 = 종료 = 세션의 모든속성 값을제거

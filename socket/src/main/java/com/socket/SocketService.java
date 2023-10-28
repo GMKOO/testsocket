@@ -18,15 +18,15 @@ public class SocketService {
 	public List<Map<String, Object>> serchid(Map<String, Object> map) {
 		
 		 String toId = (String) map.get("toId");
-	        String id = (String) map.get("id");
+	        String mid = (String) map.get("mid");
 	    
-		if (isFirstConversation(toId, id)) {
+		if (isFirstConversation(toId, mid)) {
             // 첫 대화인 경우 초기 메시지를 데이터베이스에 삽입
      
 			
 		System.out.println("첫대화");
 			map.put("toId", toId); // f
-			map.put("id", id); // f
+			map.put("mid", mid); // f
 			map.put("message", "");
 			//System.out.println(map.toString());
 			socketDAO.Firstmsg(map);
@@ -49,10 +49,10 @@ public class SocketService {
 		return socketDAO.msginsert(map);
 	}
 	
-	public boolean isFirstConversation(String toId,String id) {
+	public boolean isFirstConversation(String toId,String mid) {
 		  Map<String, Object> map = new HashMap<>();
 		  map.put("toId", toId);
-		  map.put("id", id);
+		  map.put("mid", mid);
 		
 			int result =socketDAO.isFirstConversation(map);
 			

@@ -9,6 +9,7 @@
 <meta charset="UTF-8">
 <link rel="stylesheet" href="./css/login.css">
 <script src="./js/jquery-3.7.0.min.js"></script>
+<script src="./js/socket.js"></script>
 <head>
 <title>로그인</title>
 
@@ -26,17 +27,18 @@
 		document.addEventListener('DOMContentLoaded', function () {
 			event.preventDefault(); 
 			//세션에 저장된 count를 storage에 저장
+			sessionStorage.setItem("mid",  "<%=session.getAttribute("mid")%>" );
 			sessionStorage.setItem("reloadData", <%=session.getAttribute("count")%> );
-			sessionStorage.setItem("id",  "<%=session.getAttribute("id")%>" );
-			sessionStorage.setItem("name",  "<%=session.getAttribute("mname")%>" );
 			
-			const id = sessionStorage.getItem("id"); 	
+			sessionStorage.setItem("mname",  "<%=session.getAttribute("mname")%>" );
+			
+			const mid = sessionStorage.getItem("mid"); 	
 			//storage에 저장된 숫자를 countStorage 저장
 			const countStorage = sessionStorage.getItem("reloadData");  // 
 			
 
 			
-		 if (countStorage == 1 && id != null ) {
+		 if (countStorage == 1 && mid != null ) {
 			 
 			 $(".loginForm").hide(); 
 			   // reload(id); // #6. 로그인후 페이지 새로 고치면 로그인화면 그대로 보여주기 
@@ -53,18 +55,18 @@
 	$(function() {
 		$(".login").click(function() {
 			event.preventDefault(); // 기본 동작을 막음. 폼 action 기능 새로고침을 막아준다.*중요*
-			let id = $("#id").val();
-			let pw = $("#pw").val();
+			let mid = $("#mid").val();
+			let mpw = $("#mpw").val();
 			
 			//#0. 로그인 length검사 함수 
-				if (id.length < 2) {
+				if (mid.length < 2) {
 					//alert(id.length);
 					alert("아이디가 잘못 입력되었습니다.");
-					$("#id").focus();
-				} else if (pw.length < 4) {
+					$("#mid").focus();
+				} else if (mpw.length < 4) {
 					//alert(pw.length);
 					alert("아이디와 비밀번호를 잘못 입력되었습니다.");
-					$("#pw").focus();
+					$("#mpw").focus();
 
 				} else {
 					
@@ -87,6 +89,7 @@
 				}
 			});
 	});
+	
 			
 	//버튼을 클릭해서 사용자 정보를 받아서 채팅 페이지로 이동 
 	function navigateToChatPage(button) {
@@ -129,12 +132,12 @@
 <nav>
 
 	<c:choose>
-		<c:when test="${sessionScope.id eq null }">
+		<c:when test="${sessionScope.mid eq null }">
 			<li class="log1" onclick="location.href='./login'">로그인</li>
 
 		</c:when>
 		<c:otherwise>
-			<li class="log2" onclick="">${sessionScope.id }님
+			<li class="log2" onclick="">${sessionScope.mid }님
 				반갑습니다.</li>
 			<li class="log1" type="button" onclick="location.href='./logout'"
 				>로그아웃</li>
@@ -146,8 +149,8 @@
 <%
 	String userId = null;
 
-if (session.getAttribute("id") != null) {
-	userId = (String) session.getAttribute("id");
+if (session.getAttribute("mid") != null) {
+	userId = (String) session.getAttribute("mid");
 }
 
 %>
@@ -160,9 +163,9 @@ if (session.getAttribute("id") != null) {
 	<form name="loginForm" class="loginForm" action="./login" method="post">
 
 		<input type="text"  maxlength="20" placeholder="아이디"
-			required="required" name="id" class="loginID" id="id"
-			oninput="" /> <input type="password" name="pw"
-			id="pw" class="loginPW" maxlength="12"
+			required="required" name="mid" class="loginID" id="mid"
+			oninput="" /> <input type="password" name="mpw"
+			id="mpw" class="loginPW" maxlength="12"
 			required="required" placeholder="********"
 			oninput="" /> <span>
 			<button class="login" type="submit" onclick="">로그인
@@ -186,7 +189,7 @@ if (session.getAttribute("id") != null) {
     <button type="button" onclick="location.href='./chat1'">채팅</button>
     <div>
     <c:choose>
-		<c:when test="${sessionScope.id eq null }">
+		<c:when test="${sessionScope.mid eq null }">
 		</c:when>
 		<c:otherwise>
 			

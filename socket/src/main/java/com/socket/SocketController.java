@@ -84,6 +84,7 @@ public class SocketController {
 	@GetMapping("/roomload")
 	public String roomload(@RequestParam Map<String,Object> map) {
 		
+		
 		List<Map<String, Object>> result = socketService.roomload(map);
 		JSONObject json = new JSONObject();
 	

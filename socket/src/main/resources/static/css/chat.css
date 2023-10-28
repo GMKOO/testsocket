@@ -13,9 +13,10 @@ body,html{
 			margin-bottom: auto;
 		}
 		.card{
-			height: 500px;
+			height: 851px;
 			border-radius: 15px !important;
 			background-color: rgba(0,0,0,0.4) !important;
+			width:393px;
 		}
 		.contacts_body{
 			padding:  0.75rem 0 !important;
@@ -85,7 +86,7 @@ body,html{
 		.contacts li{
 			width: 100% !important;
 			padding: 5px 10px;
-			margin-bottom: 15px !important;
+			
 		}
 	.active{
 			background-color: rgba(0,0,0,0.3);
@@ -123,6 +124,14 @@ body,html{
 	}
 	.offline{
 		background-color: #c23616 !important;
+			position: absolute;
+		height: 15px;
+		width:15px;
+	
+		border-radius: 50%;
+		bottom: 0.2em;
+		right: 0.4em;
+		border:1.5px solid white;
 	}
 	.user_info{
 		margin-top: auto;
@@ -131,7 +140,7 @@ body,html{
 	}
 	
 	.user_info1{
-		margin-top: auto;
+		margin-top: 10px;
 		margin-bottom: auto;
 		margin-left: 15px;
 	}
@@ -304,6 +313,24 @@ body,html{
 }
 
 .toId {
-		font-size: 15px;
+		font-size: 20px;
 		color: white;
+	
+}
+
+.time {
+	font-size: 12px;
+	margin-top: 15px;
+		color:  #c0c0c0;
+		position: absolute;
+		right: 20px;
+	
+}
+
+.roommessage{
+	
+	color:  #c0c0c0;
+
+	
+	
 }

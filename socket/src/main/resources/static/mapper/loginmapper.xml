@@ -7,16 +7,16 @@
 
 	<select id="login"  parameterType="Map" resultType="Map">
 	
-	SELECT m_name, count(*) AS 'count' FROM testjoin
-	 WHERE m_id= #{id} AND m_pw= #{pw}
+	SELECT mname, count(*) AS 'count' FROM members
+	 WHERE mid= #{mid} AND mpw= #{mpw}
 	
 
 	</select>
 	
 	<select id="checkID"  parameterType="Map" resultType="Map">
 	
-	SELECT m_name, count(*) AS 'count' FROM testjoin
-	 WHERE m_id= #{id} AND m_pw= #{pw}
+	SELECT mname, count(*) AS 'count' FROM members
+	 WHERE mid= #{mid} AND mpw= #{mpw}
 	
 
 	</select>
@@ -25,7 +25,7 @@
 	
 	<select id="joincheckID" parameterType="String" resultType="Integer">
 	
-	SELECT count(*) FROM testjoin WHERE m_id= #{id}
+	SELECT count(*) FROM members WHERE mid= #{mid}
 	
 	
 	</select>
@@ -35,8 +35,8 @@
 	<insert id="joinCreateID" parameterType="Map">
 	
 
-    INSERT INTO testjoin (m_id, m_pw, m_name)
-    VALUES (#{id}, #{pw}, #{name} )
+    INSERT INTO members (mid, mpw, mname)
+    VALUES (#{mid}, #{mpw}, #{mname} )
     
 </insert>
 

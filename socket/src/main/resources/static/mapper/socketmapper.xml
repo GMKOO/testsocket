@@ -11,15 +11,15 @@ SELECT
     u.from_user_id,
     u.to_user_id,
     u.content,
-    (SELECT img FROM testjoin WHERE m_id= #{toId}) AS toimg,
-    (SELECT img FROM testjoin WHERE m_id = #{id}) AS myimg,
+    (SELECT mimg FROM members WHERE mid= #{toId}) AS toimg,
+    (SELECT mimg FROM members WHERE mid = #{mid}) AS myimg,
     u.timestamp,
-    (select m_id from testjoin where m_id=#{toId}) AS toId
+    (select mid from members where mid=#{toId}) AS toId
 
 FROM UserMessages u
 
-WHERE u.from_user_id = #{id} AND u.to_user_id = #{toId}
-  OR u.from_user_id = #{toId} AND u.to_user_id = #{id}
+WHERE u.from_user_id = #{mid} AND u.to_user_id = #{toId}
+  OR u.from_user_id = #{toId} AND u.to_user_id = #{mid}
   
    ORDER BY u.timestamp ASC
 
@@ -29,7 +29,7 @@ WHERE u.from_user_id = #{id} AND u.to_user_id = #{toId}
 	
 	
 	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp)
-	VALUE (#{toId},#{text},#{id},NOW())
+	VALUE (#{toId},#{text},#{mid},NOW())
 	
 	
 	</insert>
@@ -40,15 +40,15 @@ WHERE u.from_user_id = #{id} AND u.to_user_id = #{toId}
 	  	
     		count(*) as count
     FROM UserMessages u	
- 	WHERE u.from_user_id = #{id} AND u.to_user_id = #{toId}
-  		OR u.from_user_id = #{toId} AND u.to_user_id = #{id}
+ 	WHERE u.from_user_id = #{mid} AND u.to_user_id = #{toId}
+  		OR u.from_user_id = #{toId} AND u.to_user_id = #{mid}
     		
 	</select>
 	
 	<insert id="Firstmsg" parameterType="Map">
 	
 	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp)
-	VALUE (#{toId},#{message},#{id},NOW())
+	VALUE (#{toId},#{message},#{mid},NOW())
 	
 	</insert>
 
@@ -56,11 +56,11 @@ WHERE u.from_user_id = #{id} AND u.to_user_id = #{toId}
 	
 SELECT
  
-    img 
+    mimg 
   
-FROM testjoin 
+FROM members 
 
-WHERE m_id = #{id}
+WHERE mid = #{mid}
 
 	</select>
 	
@@ -76,11 +76,11 @@ FROM UserMessages m1
 WHERE m1.message_id IN (
     SELECT MAX(m2.message_id)
     FROM UserMessages m2
-    WHERE m2.from_user_id = #{id} OR m2.to_user_id = #{id}
+    WHERE m2.from_user_id = #{mid} OR m2.to_user_id = #{mid}
     GROUP BY 
         CASE 
-            WHEN m2.from_user_id = #{id} THEN m2.to_user_id
-            WHEN m2.to_user_id = #{id} THEN m2.from_user_id
+            WHEN m2.from_user_id = #{mid} THEN m2.to_user_id
+            WHEN m2.to_user_id = #{mid} THEN m2.from_user_id
         END
       )  
       ORDER BY latest_timestamp DESC;
