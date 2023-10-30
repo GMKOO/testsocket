@@ -108,6 +108,11 @@ body,html{
 			height: 70px;
 			width: 70px;
 	}
+	.img_cont1{
+			position: relative;
+			height: 70px;
+			width: 70px;
+	}
 	.img_cont_msg{
 			height: 40px;
 			width: 40px;
@@ -133,23 +138,23 @@ body,html{
 		right: 0.4em;
 		border:1.5px solid white;
 	}
-	.user_info{
+	.user_info1{
 		margin-top: auto;
 		margin-bottom: auto;
 		margin-left: 15px;
 	}
 	
-	.user_info1{
+	.user_info{
 		margin-top: 10px;
 		margin-bottom: auto;
 		margin-left: 15px;
 	}
-	.user_info span{
+	.user_info1 span{
 		font-size: 20px;
 		color: white;
 	}
 	.user_info p{
-	font-size: 10px;
+	font-size: 18px;
 	color: rgba(255,255,255,0.6);
 	}
 	.video_cam{
@@ -320,7 +325,7 @@ body,html{
 
 .time {
 	font-size: 12px;
-	margin-top: 15px;
+	margin-top: 4px;
 		color:  #c0c0c0;
 		position: absolute;
 		right: 20px;
@@ -332,5 +337,21 @@ body,html{
 	color:  #c0c0c0;
 
 	
+	
+}
+
+.note-num {
+   position: absolute;
+
+    right: 28px;
+    z-index: 2; /* 숫자 아이콘을 아이콘 위에 겹치게 하려면 z-index를 조절 */
+    height: 21px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    background-color: red;
+    border-radius: 50%;
+
+    color: white;
 	
 }

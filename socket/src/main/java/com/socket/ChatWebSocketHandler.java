@@ -81,25 +81,56 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	 
 	    //처음 웹소켓 연결된 사용자 이름, 세션 저장 메서드
 	    private void handleInitialConnection(JSONObject jsonObject, WebSocketSession session) throws IOException {
+	    	
+	    	//##1 온라인,오프라인 업데이트표시
 	        String mid = jsonObject.optString("mid", "");
 	        String message = "연결";
+	        String clientStatus ="연결불러오기";
 	        //String message = mid+"님이 접속 하셨습니다";
 	        clients.put(mid, session);
 	        sessions.add(session);
 	        
+	        sendMessageToAllClients(mid,message,session);
+	        
+	  
+	        
+	        //## 온라인,오프라인 초기 생성
+	        
 	        JSONObject statusObject = new JSONObject();
             for (String clientName : clients.keySet()) {
                 // 상태 정보를 가져오는 로직을 추가해야 합니다.
-            	  String clientStatus = "연결불러오기"; // 예시: 모든 사용자를 "연결" 상태로 표시
+            	   clientStatus = "연결불러오기"; // 접속중인 사용자 key,value로 "연결불러오기" 값 저장
             	    statusObject.put(clientName, clientStatus);
             	
             	}
-
+          
             	TextMessage statusMessage = new TextMessage(statusObject.toString());
             		session.sendMessage(statusMessage);
     	
-    		
-	        sendMessageToAllClients(mid,message,session);
+            	
+            	
+            		WebSocketSession senderSession = clients.get(mid);
+            		
+            		 for (WebSocketSession clientSession : clients.values()) {
+     		        	
+     		        	if (clientSession != null && clientSession.isOpen() && !clientSession.equals(senderSession)) {
+     		        	   try {
+     			                clientSession.sendMessage(statusMessage);
+     			               
+     	    	    
+     	    	   
+     	    	            
+     	    	        } catch (IOException e) {
+     	    	            e.printStackTrace();
+     	    	        }
+     	    	    } else {
+     	    	        // 클라이언트가 로그인되지 않았거나 연결이 끊어진 경우에 대한 처리
+     	    	    }
+     	    		
+     	       
+     	    	}
+            		 
+            		
 	   	 //System.out.println("접속아이디"+clients.size());
 		 System.out.println("현재접속자수"+clients.size());
 			System.out.println("현재접속자리스트"+clients.toString());
