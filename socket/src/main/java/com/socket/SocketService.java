@@ -28,6 +28,7 @@ public class SocketService {
 			map.put("toId", toId); // f
 			map.put("mid", mid); // f
 			map.put("message", "");
+			map.put("read_status", 0);
 			//System.out.println(map.toString());
 			socketDAO.Firstmsg(map);
 		
@@ -53,6 +54,8 @@ public class SocketService {
 		  Map<String, Object> map = new HashMap<>();
 		  map.put("toId", toId);
 		  map.put("mid", mid);
+		  map.put("read_status", 0);
+		  
 		
 			int result =socketDAO.isFirstConversation(map);
 			
@@ -80,5 +83,31 @@ public class SocketService {
 	
 		return socketDAO.roomload(map);
 	}
+
+
+	public void readupdate(JSONObject jsonObject) {
+		
+		  Map<String, Object> map = new HashMap<>();
+ jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
+	
+		
+	
+		socketDAO.readupdate(map);
+	}
+
+
+	public void chatcount(String toId) {
+		socketDAO.chatcount(toId);
+		
+	}
+
+
+	public int msgcount(String mid) {
+		
+		return socketDAO.msgcount(mid);
+	}
+
+
+	
 
 }

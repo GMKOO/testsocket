@@ -345,13 +345,13 @@ body,html{
 
     right: 28px;
     z-index: 2; /* 숫자 아이콘을 아이콘 위에 겹치게 하려면 z-index를 조절 */
-    height: 21px;
-    width: 20px;
+    height: 22px;
+    width: 22px;
     line-height: 20px;
     text-align: center;
     background-color: red;
     border-radius: 50%;
-
+	display:block;
     color: white;
 	
 }

@@ -88,9 +88,31 @@ public class SocketController {
 		List<Map<String, Object>> result = socketService.roomload(map);
 		JSONObject json = new JSONObject();
 	
+	
 		 json.put("result", result);
 		
+		 
 		 //System.out.println(result.toString());
+		return json.toString();
+	}
+
+	@ResponseBody
+	@GetMapping("/msgcount")
+	public String msgcount(@RequestParam String mid) {
+		System.out.println("왜안줘?"+mid);
+		
+		int result = socketService.msgcount(mid);
+		JSONObject json = new JSONObject();
+		if(result!=0){	
+			
+			
+			 json.put("result", result);
+		} else {
+			 json.put("result", 0);
+			
+		}
+	
+		 //System.out.println("0일거야 "+result);
 		return json.toString();
 	}
 

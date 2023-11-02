@@ -26,12 +26,11 @@ WHERE u.from_user_id = #{mid} AND u.to_user_id = #{toId}
 	</select>
 	
 	<insert id="msginsert" parameterType="Map">
-	
-	
-	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp)
-	VALUE (#{toId},#{text},#{mid},NOW())
-	
-	
+
+INSERT INTO UserMessages (to_user_id, content, from_user_id, timestamp, read_status)
+VALUES (#{toId}, #{text}, #{mid}, NOW(), 1);
+
+
 	</insert>
 	
 	<select id="isFirstConversation" parameterType="Map" resultType="Integer">
@@ -47,8 +46,8 @@ WHERE u.from_user_id = #{mid} AND u.to_user_id = #{toId}
 	
 	<insert id="Firstmsg" parameterType="Map">
 	
-	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp)
-	VALUE (#{toId},#{message},#{mid},NOW())
+	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp,read_status)
+	VALUE (#{toId},#{message},#{mid},NOW(),#{read_status})
 	
 	</insert>
 
@@ -71,7 +70,12 @@ WHERE mid = #{mid}
     m1.timestamp AS latest_timestamp,
     m1.to_user_id,
     m1.from_user_id,
-    m1.content
+    m1.content,
+    (
+        SELECT COUNT(*)
+        FROM UserMessages 
+        WHERE to_user_id = #{mid} AND from_user_id = m1.from_user_id AND read_status = 1
+    ) AS read_count
 FROM UserMessages m1
 WHERE m1.message_id IN (
     SELECT MAX(m2.message_id)
@@ -82,10 +86,50 @@ WHERE m1.message_id IN (
             WHEN m2.from_user_id = #{mid} THEN m2.to_user_id
             WHEN m2.to_user_id = #{mid} THEN m2.from_user_id
         END
-      )  
-      ORDER BY latest_timestamp DESC;
+)  
+ORDER BY latest_timestamp DESC;
+	</select>
+	
+	<update id="readupdate" parameterType="Map">
+	
+	 UPDATE UserMessages um
+	 INNER JOIN members AS m ON um.to_user_id = m.mid
+    SET
+        um.read_status =0,
+          m.mchatcount = m.mchatcount - (
+            SELECT COUNT(*) FROM UserMessages
+            WHERE to_user_id = #{mid} AND from_user_id = #{toId} AND read_status = 1
+        )
+      
+    WHERE um.to_user_id = #{mid} AND um.from_user_id = #{toId}
+ 
+	
+	
+	</update>
+	
+	<update id="chatcount" parameterType="String">
+	
+	 UPDATE members
+    	SET
+        
+          mchatcount = mchatcount +1
+         
+      
+    WHERE mid= #{toId} 
+ 
+	
+	
+	</update>
+	
+	<select id="msgcount" parameterType="String" resultType="Integer">
+	
+	SELECT mchatcount FROM members
+	WHERE mid=#{mid}
+	
 	
 	</select>
+	
+	
 	
 
 	</mapper>

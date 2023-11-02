@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
@@ -45,29 +47,48 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    	String payload = message.getPayload();
 	    	JSONObject jsonObject = new JSONObject();
 	    	
+	    	CloseStatus status = null;
 	    	if (session.isOpen()) {
 	    			payload = message.getPayload();
 	    	 	jsonObject = new JSONObject(payload);
+	    	
 
-	    	 if (jsonObject.has("mid")  && !jsonObject.has("toId") && !jsonObject.has("text")) {
-	    		 
+	    	 if (jsonObject.has("mid")  && !jsonObject.has("toId") && !jsonObject.has("text") && !jsonObject.has("close")) {
+	       	
 	    		 
 	             handleInitialConnection(jsonObject, session);  // 처음 연결시 네임값만 확인하는 메서드
 	             //System.out.println("네임만"+jsonObject.toString());
 	             
 	         } else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("text")) {
-	        	 
+	   
 	        	  if(jsonObject.get("mid").equals(jsonObject.get("toId"))) {
 	        		  System.out.println("같은 사람에게는 보낼수 없습니다.");
 	        	  } else {
-	        		 
+	        	
 	             handleMessage(jsonObject, session); // 쪽지보낼때 보낼사람,메세지,보내는사람
 	             int result=socketService.msginsert(jsonObject);
+	             String toId = jsonObject.optString("toId"," ");
+	             
+	             if (result==1) {
+	            	 
+	            	 socketService.chatcount(toId);
+	            	 
+	             }
+	             System.out.println("result"+result);
 	    
 	        	  	}
+	        
+	         	} else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("readmsg")){
+	        		  socketService.readupdate(jsonObject);
+	        		
+	        		  
+	        		  
+	         	} else if (jsonObject.has("mid") && jsonObject.has("close")) {
+	         		
+	         		afterConnectionClosed(session,status);
 	         	}
-	    	} else {  // 세션이 오프라인인 경우
-	    		
+	    	 }else {  // 세션이 오프라인인 경우
+	    	
 	    		 if(jsonObject.get("mid").equals(jsonObject.get("toId"))) {
 	        		  System.out.println("같은 사람에게는 보낼수 없습니다.");
 	        	  } else {
@@ -77,7 +98,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	        	  }
 	    	}
 	    }
-	    	
+	   
 	 
 	    //처음 웹소켓 연결된 사용자 이름, 세션 저장 메서드
 	    private void handleInitialConnection(JSONObject jsonObject, WebSocketSession session) throws IOException {
@@ -90,7 +111,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	        clients.put(mid, session);
 	        sessions.add(session);
 	        
-	        sendMessageToAllClients(mid,message,session);
+	        sendMessageToAllClients(mid,message,session);//접속알림
 	        
 	  
 	        
@@ -215,40 +236,36 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 			            break;
 			        }
 			    }
-
+			    
 			    if (sessionToRemove != null) {
-			    	
-			    	
-				        sendMessageToAllClients(sessionToRemove,message,session);
-				        
-			        clients.remove(sessionToRemove);
+			    	 clients.remove(sessionToRemove);
+			    	   sendMessageToAllClients(sessionToRemove,message,session);
+			        
+			       
 			        
 			        System.out.println("WebSocket session closed for user: " + sessionToRemove);
+			    
+			
 			    }
-			
-			
-	//System.out.println(" 이거 :"+session.getId());
-	        //String userId = clients.
-	        //System.out.println(userId);
-	        //sessions.remove(session);
-	        //clients.remove(userId);
-	    }
-	    
-	    //public void sendMessageToClient(String clientId, String message) { //특정 아이디를 가진 클라이언트에게 메세지보내기
-	      
-	    //}
+		}
+  
 	    
 	    public void sendMessageToAllClients(String mid,String message,WebSocketSession session) {  //모든 클라이언트에게 메시지보내기 
 	    	
+	    	//System.out.println(mid);
+	    	//System.out.println(message);
 	    	if (session.isOpen()) {
 	    		
 	    		WebSocketSession senderSession = clients.get(mid);
 	    		
-	    	
+	    		
+	    	//System.out.println("1"+senderSession);
+	    	//System.out.println("2"+senderSession1);
 	    		JSONObject messageObject = new JSONObject();
 	    		
 	    		messageObject.put("sender", mid);
 	    		messageObject.put("message", message);
+	    		
 	    
 	    	
 	    		
@@ -263,8 +280,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 		        	   try {
 			                clientSession.sendMessage(message2);
 			               
-	    	    
-	    	   
+	  
 	    	            
 	    	        } catch (IOException e) {
 	    	            e.printStackTrace();

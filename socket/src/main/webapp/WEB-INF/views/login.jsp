@@ -8,6 +8,7 @@
 <html>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="./css/login.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
 <script src="./js/jquery-3.7.0.min.js"></script>
 <script src="./js/socket.js"></script>
 <head>
@@ -53,7 +54,7 @@
 		<c:otherwise>
 			<li class="log2" onclick="">${sessionScope.mid }님
 				반갑습니다.</li>
-			<li class="log1" type="button" onclick="location.href='./logout'"
+			<li class="log1" type="button" onclick="logoutAndCloseSocket()"
 				>로그아웃</li>
 		</c:otherwise>
 	</c:choose>
@@ -205,9 +206,26 @@ if (session.getAttribute("mid") != null) {
 	window.location.href = "/chat1?toId=" + toId;
 
 	}
-	
-	
+	/*
+	function logoutAndCloseSocket() {
+	    // 여기서 WebSocket 연결을 닫는 코드를 추가
+	    var mid = sessionStorage.getItem("mid"); 
+	    
+	    if(mid!=null) { 
 
+		var jsonmsg={
+			
+			"mid":mid,
+			"close":"연결해제"
+			
+		}
+
+	 socket.send(JSON.stringify(jsonmsg));
+		 window.location.href = './logout';
+	    }
+	 
+	}
+*/
 /*
 	// ##모든페이지에 입힐거 
 	var msgcount = 0;

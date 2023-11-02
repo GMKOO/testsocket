@@ -90,6 +90,8 @@ public class LoginController {
 		session.setMaxInactiveInterval(0); // 세션 유지시간을 0으로 =종료시키기
 		session.invalidate(); // 세션초기화 = 종료 = 세션의 모든속성 값을제거
 
+		
+		
 		return "redirect:login";
 
 	}
