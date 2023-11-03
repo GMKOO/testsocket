@@ -18,17 +18,19 @@ SELECT
 
 FROM UserMessages u
 
-WHERE u.from_user_id = #{mid} AND u.to_user_id = #{toId}
-  OR u.from_user_id = #{toId} AND u.to_user_id = #{mid}
-  
+WHERE (u.from_user_id = #{mid} AND u.to_user_id = #{toId} 
+   OR u.from_user_id = #{toId} AND u.to_user_id = #{mid}) 
+   AND FIND_IN_SET(#{mid}, u.exceptid)=0 
+
    ORDER BY u.timestamp ASC
 
 	</select>
 	
 	<insert id="msginsert" parameterType="Map">
 
+
 INSERT INTO UserMessages (to_user_id, content, from_user_id, timestamp, read_status)
-VALUES (#{toId}, #{text}, #{mid}, NOW(), 1);
+VALUES (#{toId}, #{text}, #{mid}, NOW(), 1)
 
 
 	</insert>
@@ -39,17 +41,33 @@ VALUES (#{toId}, #{text}, #{mid}, NOW(), 1);
 	  	
     		count(*) as count
     FROM UserMessages u	
- 	WHERE u.from_user_id = #{mid} AND u.to_user_id = #{toId}
-  		OR u.from_user_id = #{toId} AND u.to_user_id = #{mid}
+ 	WHERE (u.from_user_id = #{mid} AND u.to_user_id = #{toId}) 
+  		OR (u.from_user_id = #{toId} AND u.to_user_id = #{mid}) 
+  		AND u.exceptid !=#{mid}
     		
 	</select>
 	
 	<insert id="Firstmsg" parameterType="Map">
 	
-	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp,read_status)
-	VALUE (#{toId},#{message},#{mid},NOW(),#{read_status})
+	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp,read_status,deletemsg)
+	VALUE (#{toId},#{message},#{mid},NOW(),#{read_status},#{deletemsg})
 	
 	</insert>
+
+	<update id="Firstupdate" parameterType="Map">
+	
+	 UPDATE UserMessages
+    	SET
+        
+         exceptid = #{exceptid}
+         
+      
+    WHERE from_user_id = #{mid} AND to_user_id = #{toId} AND deletemsg=2
+  	 
+ 
+	
+	
+	</update>
 
 <select id="imgserch"  parameterType="Map" resultType="String">
 	
@@ -74,19 +92,20 @@ WHERE mid = #{mid}
     (
         SELECT COUNT(*)
         FROM UserMessages 
-        WHERE to_user_id = #{mid} AND from_user_id = m1.from_user_id AND read_status = 1
+        WHERE to_user_id = #{mid} AND from_user_id = m1.from_user_id AND read_status = 1 
     ) AS read_count
 FROM UserMessages m1
 WHERE m1.message_id IN (
     SELECT MAX(m2.message_id)
     FROM UserMessages m2
-    WHERE m2.from_user_id = #{mid} OR m2.to_user_id = #{mid}
+    WHERE (m2.from_user_id = #{mid} OR m2.to_user_id = #{mid}) 
+    AND FIND_IN_SET(#{mid}, m2.exceptid)=0 AND m2.deletemsg != 2
     GROUP BY 
         CASE 
             WHEN m2.from_user_id = #{mid} THEN m2.to_user_id
             WHEN m2.to_user_id = #{mid} THEN m2.from_user_id
         END
-)  
+) 
 ORDER BY latest_timestamp DESC;
 	</select>
 	
@@ -123,12 +142,83 @@ ORDER BY latest_timestamp DESC;
 	
 	<select id="msgcount" parameterType="String" resultType="Integer">
 	
-	SELECT mchatcount FROM members
-	WHERE mid=#{mid}
+	SELECT m.mchatcount FROM members m
+	INNER JOIN UserMessages u on u.to_user_id=m.mid
+	WHERE m.mid=#{mid} AND u.to_user_id= #{mid}
+	LIMIT 1
 	
 	
 	</select>
 	
+	
+	<update id="exceptid" parameterType="Map">
+	  <![CDATA[
+	 UPDATE UserMessages
+    	SET
+        
+     
+      	  exceptid = 
+      	  
+        CASE
+        WHEN exceptid ='제외' THEN '제외'
+        WHEN exceptid='0' THEN #{exceptid}
+        WHEN FIND_IN_SET(#{exceptid}, exceptid) = 0 
+        THEN CONCAT(exceptid, CONCAT(',', #{exceptid}))
+        ELSE exceptid
+      END
+    WHERE (to_user_id= #{toId} AND from_user_id= #{mid}) 
+    OR    (from_user_id= #{toId} AND to_user_id= #{mid}) 
+   ]]>
+	
+	
+	</update>
+	
+	<select id="fromexit" parameterType="Map" resultType="Integer">
+	
+	SELECT COUNT(*) AS count  FROM UserMessages
+	
+	WHERE from_user_id=#{mid} AND to_user_id= #{toId} 
+	AND fromexit =1 AND toexit =0
+	
+	
+	</select>
+	
+	<update id="toexit" parameterType="Map">
+	
+	 UPDATE UserMessages
+    	SET
+        
+          toexit=1
+      	
+      
+    WHERE to_user_id= #{toId} AND from_user_id= #{mid} 
+    OR    from_user_id= #{toId} AND to_user_id= #{mid} 
+ 
+	
+	
+	</update>
+	
+	<update id="excludeId" parameterType="Map">
+  <![CDATA[
+    UPDATE UserMessages
+    SET
+      deletemsg = 1,
+      exceptid = CASE
+        WHEN exceptid IS NULL THEN NULL
+        ELSE
+          TRIM(BOTH ',' FROM
+            REPLACE(
+              REPLACE(CONCAT(',', exceptid, ','), CONCAT(',', #{exceptid}, ','), ','),
+              ',,',
+              ','
+            )
+          )
+      END
+    WHERE (to_user_id = #{toId} AND from_user_id = #{mid})
+    OR (from_user_id = #{toId} AND to_user_id = #{mid})
+  ]]>
+</update>
+
 	
 	
 

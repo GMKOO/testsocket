@@ -29,8 +29,21 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	
 	// 판매자와 구매자 각각의 클라이언트 연결을 저장하는 맵
     private Map<String, WebSocketSession> clients = new HashMap<>();
+    
+    //차단관리
+    private Set<String> blockedClients = ConcurrentHashMap.newKeySet();
 
 	
+ // 2. 클라이언트 차단
+    public void blockClient(String clientId) {
+        blockedClients.add(clientId);
+    }
+
+    // 2. 클라이언트 차단 해제
+    public void unblockClient(String clientId) {
+        blockedClients.remove(clientId);
+    }
+    
     
 	 @Override
 	    public void afterConnectionEstablished(WebSocketSession session) throws Exception {  //연결된 후 
@@ -53,11 +66,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    	 	jsonObject = new JSONObject(payload);
 	    	
 
-	    	 if (jsonObject.has("mid")  && !jsonObject.has("toId") && !jsonObject.has("text") && !jsonObject.has("close")) {
+	    	 if (jsonObject.has("mid")  && !jsonObject.has("toId") 
+	    	  && !jsonObject.has("text") && !jsonObject.has("close") && !jsonObject.has("exceptid")) {
 	       	
 	    		 
 	             handleInitialConnection(jsonObject, session);  // 처음 연결시 네임값만 확인하는 메서드
-	             //System.out.println("네임만"+jsonObject.toString());
+	            
 	             
 	         } else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("text")) {
 	   
@@ -74,7 +88,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	            	 socketService.chatcount(toId);
 	            	 
 	             }
-	             System.out.println("result"+result);
+	             //System.out.println("result"+result);
 	    
 	        	  	}
 	        
@@ -86,6 +100,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	         	} else if (jsonObject.has("mid") && jsonObject.has("close")) {
 	         		
 	         		afterConnectionClosed(session,status);
+	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid")) {
+	         	 int result = socketService.exceptid(jsonObject);
+	         	 
+	         System.out.println(result);
+	         	}  else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("toexit")) {
+	         		 int result = socketService.toexit(jsonObject);
+	         		 
 	         	}
 	    	 }else {  // 세션이 오프라인인 경우
 	    	

@@ -44,24 +44,13 @@ public class SocketController {
 	@ResponseBody
 	@GetMapping("/serchid")
 	public String serchid(@RequestParam Map<String,Object> map) {
-		
-		//System.out.println(map.get("fromname"));
-		//System.out.println(map.get("myname"));
 	
-		
 		
 		List<Map<String, Object>> result = socketService.serchid(map);  // 여기에서 리스트로 이사람과 대화한 내역에 메세지를불러와야됨.
 		
 		JSONObject json = new JSONObject();
 		
-		/*
-		 for (Map<String, Object> msg : result) {
-	        
-		
-		 }
-		
-		*/
-		//System.out.println(result.toString());
+
 		 json.put("result", result);
 		
 		
@@ -92,24 +81,46 @@ public class SocketController {
 		 json.put("result", result);
 		
 		 
-		 //System.out.println(result.toString());
+		 System.out.println("D"+result.toString());
 		return json.toString();
 	}
 
 	@ResponseBody
 	@GetMapping("/msgcount")
 	public String msgcount(@RequestParam String mid) {
-		System.out.println("왜안줘?"+mid);
+		//System.out.println("왜안줘?"+mid);
 		
-		int result = socketService.msgcount(mid);
+		Integer result = socketService.msgcount(mid);
+		System.out.println("msgcount"+result);
 		JSONObject json = new JSONObject();
-		if(result!=0){	
+		if(result != null){	
 			
-			
+			System.out.println("1번"+result);
 			 json.put("result", result);
 		} else {
 			 json.put("result", 0);
+				System.out.println("2번"+result);
+		}
+	
+		 //System.out.println("0일거야 "+result);
+		return json.toString();
+	}
+	
+	@ResponseBody
+	@GetMapping("/fromexit")
+	public String fromexit(@RequestParam Map<String,Object> map) {
+	
+		
+		Integer result = socketService.fromexit(map);
+		System.out.println("msgcount"+result);
+		JSONObject json = new JSONObject();
+		if(result != null){	
 			
+			//System.out.println("1번"+result);
+			 json.put("result", result);
+		} else {
+			 json.put("result", 0);
+				//System.out.println("2번"+result);
 		}
 	
 		 //System.out.println("0일거야 "+result);

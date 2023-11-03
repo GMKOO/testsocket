@@ -60,6 +60,7 @@
     	var urlParams = new URLSearchParams(queryString);
     	 var toId = urlParams.get("toId");
 
+    
     	if (toId  ===null) {
     		
     	
@@ -128,15 +129,22 @@
                 	"mid" : mid
                 	},
                 success: function(data) {
-                	var jsonData = JSON.parse(data); 
-   
                 	
+                	
+                	
+                	var jsonData = JSON.parse(data); 
+                	//alert(jsonData.result[0].toId);
+                	//##만약 불러올 채팅창 내용이 없다면 기본삽입문실행
+                	
+           
                 	$(".msgload").remove();
                 	$(".contacts_card").hide();
         		    
                 	//## 3-3 대화창 재생성##
                 	//## 8-2 대화창 재생성##
                 	msgload(jsonData);
+                	
+                	
                 },
                 error: function() {
     		
@@ -479,7 +487,7 @@ function updateMessage(sender, time, message,sort) {
     	  var chatcreate ='<li><div class="d-flex bd-highlight" type="button"'; 
     	      chatcreate+='onclick="serchid(this)"><div class="img_cont">';
     	  	  chatcreate+='<img src="'+img+'" class="rounded-circle user_img">';
-    	      chatcreate+='<span class="online_icon"></span></div>';
+    	      chatcreate+='<span class="status online_icon"></span></div>';
     	      chatcreate+='<div class="user_info"><span class="toId">'+sender+'';
     	      chatcreate+='</span><span class="time">'+time+'</span>';
     	      
@@ -967,12 +975,14 @@ function sendMessage() {
         	
         	//## 4. DB자료로 이전 대화창 생성 함수 ##
         	function msgload(msg) {
-        		
+        	
+        	
         		var conversationHTML = "";
         		var message = "";
         		var toimg = "";
         		var myimg = "";
         		var toId = msg.result[0].toId;
+        	
         		var readmsg;
         
         		var timestamp = "";
@@ -1069,8 +1079,8 @@ function sendMessage() {
         		    contenthead +='<span class="toId1">'+toId+'</span></div>';
         		    contenthead +='</div><span id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>';
         		    contenthead +='<div class="action_menu"><ul><li><i class="fas fa-user-circle"></i> 사용자정보</li>';
-        		    contenthead +='<li><i class="fas fa-users"></i> 친구추가</li>';
-        		    contenthead +='<li><i class="fas fa-plus"></i> 아무거나?</li>';
+        		    contenthead +='<li><i class="fas fa-users"></i> 신고하기</li>';
+        		    contenthead +='<li type="button" onclick="msgexit()"><i class="fas fa-plus"></i> 대화나가기</li>';
         		    contenthead +='<li><i class="fas fa-ban"></i> 차단하기</li></ul></div></div>';
         		    contenthead +='<div class="card-body msg_card_body" id="chat">';
         		    
@@ -1107,6 +1117,127 @@ function sendMessage() {
         	           
         	}
         			
+        	
+        	//##대화나가기 (대화글 삭제로 돌리기,사용자에게는 안보임)
+        	function msgexit(){
+        
+        		  var toId = document.querySelector('.toId1').textContent;
+        		  var mid = sessionStorage.getItem("mid"); 
+        	
+        	
+        		  if(toId != null) {
+        			  
+        			  var jsonmsg ={
+            				  
+            				  "toId":toId,
+            				  "mid":mid,
+            				  "exceptid":mid
+            				  
+            		  }
+            		  
+            		  socket.send(JSON.stringify(jsonmsg));
+            		
+            			$("#msgload").remove();
+            			$(".contacts_card").show();
+            			exitupdate(toId);
+                  
+                  }
+        	}
+                  
+        			  /*
+        			  $.ajax({
+                          type: "GET",
+                          url: "./fromexit", // 폼의 action URL
+                       
+                          data: {
+                          	
+                          	"mid" : mid,
+                          	"toId": toId
+                        
+                          
+                          	},
+                         	
+                          success: function(data) {
+                          	
+                              
+                          	
+                          	var jsonData = JSON.parse(data); 
+                          var json= jsonData.result;
+        			  
+                          if(json==1) {
+                        	  
+                         
+  									var jsonmsg ={
+                    				  
+                    				  "toId":toId,
+                    				  "mid":mid,
+                    				  "toexit":1
+                    				  
+                    		  }
+                    		  
+                    		  socket.send(JSON.stringify(jsonmsg));
+                    		
+                    			$("#msgload").remove();
+                    			$(".contacts_card").show();
+                    			exitupdate(toId);
+                        	  
+                          
+                        	  
+                          }else if (json==0) {
+                    		  var jsonmsg ={
+                    				  
+                    				  "toId":toId,
+                    				  "mid":mid,
+                    				  "msgexit":1
+                    				  
+                    		  }
+                    		  
+                    		  socket.send(JSON.stringify(jsonmsg));
+                    		
+                    			$("#msgload").remove();
+                    			$(".contacts_card").show();
+                    			exitupdate(toId);
+                          
+                          }
+                          
+                      	}
+        		
+        			
+        		  },
+        		  error: function() {
+              		
+              	}
+                  
+      });
+        
+        		
+        	} */
+        
+        	
+        	function exitupdate(target) {
+        		
+       
+        	   const toIdElements = document.querySelectorAll('.toId');
+  	 			 const userList = document.querySelectorAll('.user_info');
+  	 			var toId;
+
+  	 if(target !=null && toIdElements) {
+    for (var i =0; i < userList.length; i++) {
+    	 toId = userList[i].querySelector('.toId');
+
+     
+     
+		if (toId && toId.textContent == target) {
+			userList[i].closest("li").remove();
+ 
+            }
+        }
+  	 			}
+        	
+  }
+        	
+        	
+        	
         	//접속경로에따라 뒤로가기버튼을 다르게 줘야됨.
         	 function goBack() {
         		
@@ -1122,7 +1253,7 @@ function sendMessage() {
                     } else { 
                     
                     	$("#msgload").remove();
-                      	//msgroomload();
+                   
                     	$(".contacts_card").show();
                     	
                     	

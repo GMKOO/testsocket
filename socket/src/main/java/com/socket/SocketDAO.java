@@ -22,7 +22,7 @@ public interface SocketDAO {
 
 
 
-	void Firstmsg(Map<String, Object> map);
+	int Firstmsg(Map<String, Object> map);
 
 
 
@@ -46,7 +46,32 @@ public interface SocketDAO {
 
 
 
-	int msgcount(String mid);
+	Integer msgcount(String mid);
+
+
+
+
+
+
+
+
+
+	Integer fromexit(Map<String, Object> map);
+
+
+
+	int toexit(Map<String, Object> map);
+
+
+
+	int exceptid(Map<String, Object> map);
+
+
+
+
+
+
+	void Firstupdate(Map<String, Object> map);
 
 
 

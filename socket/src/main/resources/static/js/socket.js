@@ -133,9 +133,11 @@ getmsgcount(function(msgcount) {
 	
 function getmsgcount(callback) {  //mid에 저장된 새 메시지 총개수 가져오기
 	
-	const noteNumElement = document.querySelector('.note-num');
+	
 
  var mid = sessionStorage.getItem("mid");
+ 
+
 
 			$.ajax({
                     type: "GET",
@@ -147,9 +149,16 @@ function getmsgcount(callback) {  //mid에 저장된 새 메시지 총개수 가
                    	
                     success: function(data) {
                     	
+                    
+                    	
                     	const jsonData = JSON.parse(data); 
+                    	
+                    	
+                    	if(jsonData.result != null){
                      msgcount= jsonData.result;
+                    
 						callback(msgcount);
+						}
 			
 },
             error: function() {

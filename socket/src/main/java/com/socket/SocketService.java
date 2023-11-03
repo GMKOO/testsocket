@@ -24,13 +24,18 @@ public class SocketService {
             // 첫 대화인 경우 초기 메시지를 데이터베이스에 삽입
      
 			
-		System.out.println("첫대화");
+		//System.out.println("첫대화");
 			map.put("toId", toId); // f
 			map.put("mid", mid); // f
 			map.put("message", "");
 			map.put("read_status", 0);
+			map.put("deletemsg", 2);
+			map.put("exceptid", "제외");
 			//System.out.println(map.toString());
-			socketDAO.Firstmsg(map);
+		int result=socketDAO.Firstmsg(map);
+		System.out.println("첫메시지 반환"+result);
+	
+		socketDAO.Firstupdate(map);
 		
 			
         }
@@ -55,6 +60,7 @@ public class SocketService {
 		  map.put("toId", toId);
 		  map.put("mid", mid);
 		  map.put("read_status", 0);
+		
 		  
 		
 			int result =socketDAO.isFirstConversation(map);
@@ -102,9 +108,35 @@ public class SocketService {
 	}
 
 
-	public int msgcount(String mid) {
+	public Integer msgcount(String mid) {
 		
 		return socketDAO.msgcount(mid);
+	}
+
+
+	
+
+	public Integer fromexit(Map<String, Object> map) {
+		
+		
+		  
+		 return socketDAO.fromexit(map);
+		
+	}
+
+
+	public int toexit(JSONObject jsonObject) {
+		  Map<String, Object> map = new HashMap<>();
+		  jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
+		  
+		 return socketDAO.toexit(map);
+	}
+
+
+	public int exceptid(JSONObject jsonObject) {
+		  Map<String, Object> map = new HashMap<>();
+		  jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
+		return socketDAO.exceptid(map);
 	}
 
 
