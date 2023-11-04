@@ -33,7 +33,7 @@ public class SocketService {
 			map.put("exceptid", "제외");
 			//System.out.println(map.toString());
 		int result=socketDAO.Firstmsg(map);
-		System.out.println("첫메시지 반환"+result);
+		//System.out.println("첫메시지 반환"+result);
 	
 		socketDAO.Firstupdate(map);
 		
@@ -125,18 +125,27 @@ public class SocketService {
 	}
 
 
-	public int toexit(JSONObject jsonObject) {
-		  Map<String, Object> map = new HashMap<>();
-		  jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
-		  
-		 return socketDAO.toexit(map);
-	}
+	
 
 
 	public int exceptid(JSONObject jsonObject) {
 		  Map<String, Object> map = new HashMap<>();
 		  jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
 		return socketDAO.exceptid(map);
+	}
+
+
+	public int block(JSONObject jsonObject) {
+		 Map<String, Object> map = new HashMap<>();
+		  jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
+
+		return socketDAO.block(map);
+	}
+
+
+	public List<Map<String, Object>> blocklist() {
+		
+		return socketDAO.blocklist();
 	}
 
 

@@ -30,16 +30,7 @@ public class SocketController {
 		
 		return "chat1";
 	}
-	
-	@MessageMapping("/event")
-	public void stomp(Map map) {
-		
-	this.template.convertAndSend("/topic/message", "hello");	
-	
-		
-		
-	}
-	
+
 	
 	@ResponseBody
 	@GetMapping("/serchid")
@@ -81,7 +72,7 @@ public class SocketController {
 		 json.put("result", result);
 		
 		 
-		 System.out.println("D"+result.toString());
+		 //System.out.println("D"+result.toString());
 		return json.toString();
 	}
 
@@ -95,11 +86,11 @@ public class SocketController {
 		JSONObject json = new JSONObject();
 		if(result != null){	
 			
-			System.out.println("1번"+result);
+			//System.out.println("1번"+result);
 			 json.put("result", result);
 		} else {
 			 json.put("result", 0);
-				System.out.println("2번"+result);
+				//System.out.println("2번"+result);
 		}
 	
 		 //System.out.println("0일거야 "+result);
@@ -112,7 +103,7 @@ public class SocketController {
 	
 		
 		Integer result = socketService.fromexit(map);
-		System.out.println("msgcount"+result);
+		//System.out.println("msgcount"+result);
 		JSONObject json = new JSONObject();
 		if(result != null){	
 			

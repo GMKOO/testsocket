@@ -3,9 +3,8 @@
 body,html{
 			height: 100%;
 			margin: 0;
-			background: #7F7FD5;
-	       background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
-	        background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+			background:white;
+	  
 		}
 
 		.chat{
@@ -15,7 +14,7 @@ body,html{
 		.card{
 			height: 851px;
 			border-radius: 15px !important;
-			background-color: rgba(0,0,0,0.4) !important;
+			background-color:#495057 !important;
 			width:393px;
 		}
 		.contacts_body{
@@ -32,6 +31,7 @@ body,html{
 		}
 	 .card-footer{
 		border-radius: 0 0 15px 15px !important;
+		background-color: rgba(0,0,0,0.3) !important;
 			border-top: 0 !important;
 	}
 		.container{
@@ -85,7 +85,7 @@ body,html{
 		}
 		.contacts li{
 			width: 100% !important;
-			padding: 5px 10px;
+			padding: 10px 10px;
 			
 		}
 	.active{
@@ -148,14 +148,15 @@ body,html{
 		margin-top: 10px;
 		margin-bottom: auto;
 		margin-left: 15px;
+		width:75%;
 	}
 	.user_info1 span{
 		font-size: 20px;
 		color: white;
 	}
 	.user_info p{
-	font-size: 18px;
-	color: rgba(255,255,255,0.6);
+	
+	color:#e9ecef;
 	}
 	.video_cam{
 		margin-left: 50px;
@@ -268,20 +269,34 @@ body,html{
 
 }
 	#chat::-webkit-scrollbar {
-  width: 20px;
+  width: 10px;
 	}
 	
 	#chat::-webkit-scrollbar-track {
-  background-color: #e4e4e4;
+ 
   border-radius: 100px;
 }
 
 	#chat::-webkit-scrollbar-thumb {
   border-radius: 100px;
-  background-image: linear-gradient(180deg, #d0368a 0%, #708ad4 99%);
+  background-color: #212529;
   box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);
 }
 
+#contacts_body::-webkit-scrollbar {
+  width: 10px;
+	}
+	
+	#contacts_body::-webkit-scrollbar-track {
+ 
+  border-radius: 100px;
+}
+
+	#contacts_body::-webkit-scrollbar-thumb {
+  border-radius: 100px;
+  background-color: #212529;
+  box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);
+}
 #message {
 	
 	resize: none;
@@ -326,9 +341,8 @@ body,html{
 .time {
 	font-size: 12px;
 	margin-top: 4px;
-		color:  #c0c0c0;
-		position: absolute;
-		right: 20px;
+		color:  #dee2e6;
+		float:right;
 	
 }
 

@@ -75,6 +75,14 @@ public interface SocketDAO {
 
 
 
+	int block(Map<String, Object> map);
+
+
+
+	List<Map<String, Object>> blocklist();
+
+
+
 	;
 
 }

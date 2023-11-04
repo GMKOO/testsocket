@@ -901,6 +901,11 @@ function sendMessage() {
       	  }	
       		
       		roombody +='<p class="roommessage">'+lastmessage+'</p></div></div></li>';
+      		//roombody +='<p class="roommessage">'+lastmessage+'</p><span id="action_menu_btn"></span>';
+      		//roombody +='<div class="action_menu"><ul><li><i class="fas fa-user-circle"></i> 사용자정보</li>';
+      		//roombody +='<li><i class="fas fa-users"></i> 신고하기</li>';
+      		//roombody +='<li type="button" onclick="msgexit()"><i class="fas fa-plus"></i> 대화나가기</li>';
+      		//roombody +='<li><i class="fas fa-ban"></i> 차단하기</li></ul></div></div></div></div></li>';
     
 		 roomContent += roombody;
       		
@@ -1080,8 +1085,8 @@ function sendMessage() {
         		    contenthead +='</div><span id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>';
         		    contenthead +='<div class="action_menu"><ul><li><i class="fas fa-user-circle"></i> 사용자정보</li>';
         		    contenthead +='<li><i class="fas fa-users"></i> 신고하기</li>';
-        		    contenthead +='<li type="button" onclick="msgexit()"><i class="fas fa-plus"></i> 대화나가기</li>';
-        		    contenthead +='<li><i class="fas fa-ban"></i> 차단하기</li></ul></div></div>';
+        		    contenthead +='<li type="button" onclick="msgexit(\'대화나가기\')"><i class="fas fa-plus"></i> 대화나가기</li>';
+        		    contenthead +='<li type="button" onclick="msgexit(\'차단\')"><i class="fas fa-ban"></i> 차단하기</li></ul></div></div>';
         		    contenthead +='<div class="card-body msg_card_body" id="chat">';
         		    
         
@@ -1119,8 +1124,9 @@ function sendMessage() {
         			
         	
         	//##대화나가기 (대화글 삭제로 돌리기,사용자에게는 안보임)
-        	function msgexit(){
+        	function msgexit(work){
         
+        		
         		  var toId = document.querySelector('.toId1').textContent;
         		  var mid = sessionStorage.getItem("mid"); 
         	
@@ -1134,15 +1140,31 @@ function sendMessage() {
             				  "exceptid":mid
             				  
             		  }
-            		  
-            		  socket.send(JSON.stringify(jsonmsg));
-            		
-            			$("#msgload").remove();
-            			$(".contacts_card").show();
-            			exitupdate(toId);
-                  
+        			  
+        			  //## 차단하기 
+        			  if (work =="차단") {
+        		            jsonmsg["block"] = toId;
+        		            
+        		            socket.send(JSON.stringify(jsonmsg));
+                    		
+                			$("#msgload").remove();
+                			$(".contacts_card").show();
+                			exitupdate(toId);  
+        		        } else if (work =="대화나가기") {
+        		        	 socket.send(JSON.stringify(jsonmsg));
+        	            		
+                 			$("#msgload").remove();
+                 			$(".contacts_card").show();
+                 			exitupdate(toId);  
+        		        	
+        		        }
+        		
+            	
                   }
         	}
+        	
+        	
+        	
                   
         			  /*
         			  $.ajax({
@@ -1213,7 +1235,7 @@ function sendMessage() {
         		
         	} */
         
-        	
+        	//## 대화목록에서 대화나가기 상대 업데이트(삭제)
         	function exitupdate(target) {
         		
        

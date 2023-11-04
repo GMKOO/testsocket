@@ -1,11 +1,11 @@
 package com.socket;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
@@ -31,22 +31,65 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
     private Map<String, WebSocketSession> clients = new HashMap<>();
     
     //차단관리
-    private Set<String> blockedClients = ConcurrentHashMap.newKeySet();
+    private Map<String,Set<String>> blockedClients = new ConcurrentHashMap<>();
 
-	
- // 2. 클라이언트 차단
-    public void blockClient(String clientId) {
-        blockedClients.add(clientId);
+ // 클라이언트 차단
+    public void blockClient(String blockingClientId, String blockedClientId) {
+    	blockedClients.computeIfAbsent(blockingClientId, k -> ConcurrentHashMap.newKeySet()).add(blockedClientId);
+    //System.out.println("블럭"+getBlockedClients(blockingClientId));
     }
 
-    // 2. 클라이언트 차단 해제
-    public void unblockClient(String clientId) {
-        blockedClients.remove(clientId);
+    // 클라이언트 차단 해제
+    public void unblockClient(String blockingClientId, String blockedClientId) {
+        Set<String> blockedClientsSet = blockedClients.get(blockingClientId);
+        if (blockedClientsSet != null) {
+            blockedClientsSet.remove(blockedClientId);
+            if (blockedClientsSet.isEmpty()) {
+                blockedClients.remove(blockingClientId);
+            }
+        }
+    }
+   
+    //차단리스트불러오기 
+    public Set<String> getBlockedClients(String blockingClientId) {
+        return blockedClients.getOrDefault(blockingClientId, Collections.emptySet());
     }
     
+    //접속중인 클라이언트들에키값으로 아이디찾아오는 메서드 
+    private String getRecipientId(WebSocketSession session) {
+        for (Map.Entry<String, WebSocketSession> entry : clients.entrySet()) {
+            if (entry.getValue().equals(session)) {
+                return entry.getKey();
+            }
+        }
+        return null; // 예외 처리 필요
+    }
     
 	 @Override
 	    public void afterConnectionEstablished(WebSocketSession session) throws Exception {  //연결된 후 
+		 /*
+		 List<Map<String,Object>> blockedUsers = socketService.blocklist();
+         //System.out.println(blockedUsers.toString());
+         
+		 //웹소켓 연결후 전역으로 차단목록관리 
+         if(!blockedUsers.isEmpty()) {
+         for (Map<String, Object> blockedUser : blockedUsers) {
+        	    String blockerId = (String) blockedUser.get("blocker_id");
+        	    String blockedIds = (String) blockedUser.get("blocked_ids");
+
+        	  
+        	    String[] blockedIdArray = blockedIds.split(",");
+        	    for (String blockedId : blockedIdArray) {
+        	        blockClient(blockerId, blockedId);
+        	        
+        	    }
+        	    
+        	}
+         
+         }
+         System.out.println(blockedClients.toString()); 
+         */
+		 
 		 if (session.isOpen()) {}
 		 
 		 //String mid = session.getId();
@@ -59,9 +102,32 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 	    	String payload = message.getPayload();
 	    	JSONObject jsonObject = new JSONObject();
-	    	
 	    	CloseStatus status = null;
+	    	
+	    	List<Map<String,Object>> blockedUsers = socketService.blocklist();
+	         //System.out.println(blockedUsers.toString());
+	         
+			 //웹소켓 연결후 전역으로 차단목록관리 
+	         if(!blockedUsers.isEmpty()) {
+	         for (Map<String, Object> blockedUser : blockedUsers) {
+	        	    String blockerId = (String) blockedUser.get("blocker_id");
+	        	    String blockedIds = (String) blockedUser.get("blocked_ids");
+
+	        	  
+	        	    String[] blockedIdArray = blockedIds.split(",");
+	        	    for (String blockedId : blockedIdArray) {
+	        	        blockClient(blockerId, blockedId);
+	        	        
+	        	    }
+	        	    
+	        	}
+	         
+	         }
+	         System.out.println(blockedClients.toString()); 
+	    	
 	    	if (session.isOpen()) {
+	    		
+	    		
 	    			payload = message.getPayload();
 	    	 	jsonObject = new JSONObject(payload);
 	    	
@@ -71,6 +137,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	       	
 	    		 
 	             handleInitialConnection(jsonObject, session);  // 처음 연결시 네임값만 확인하는 메서드
+	             //String mid = jsonObject.optString("mid", "");
+	      
 	            
 	             
 	         } else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("text")) {
@@ -78,19 +146,25 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	        	  if(jsonObject.get("mid").equals(jsonObject.get("toId"))) {
 	        		  System.out.println("같은 사람에게는 보낼수 없습니다.");
 	        	  } else {
-	        	
+	        		  String toId = jsonObject.optString("toId"," ");
+	        		  String mid = jsonObject.optString("mid"," ");
+	        		  
+	        		  Set<String> blockedClients = getBlockedClients(toId);
+	  	    		
+	      	    	if(!blockedClients.contains(mid)) {	
 	             handleMessage(jsonObject, session); // 쪽지보낼때 보낼사람,메세지,보내는사람
 	             int result=socketService.msginsert(jsonObject);
-	             String toId = jsonObject.optString("toId"," ");
+	            
 	             
 	             if (result==1) {
 	            	 
 	            	 socketService.chatcount(toId);
 	            	 
 	             }
-	             //System.out.println("result"+result);
+	      
 	    
 	        	  	}
+	        	  }
 	        
 	         	} else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("readmsg")){
 	        		  socketService.readupdate(jsonObject);
@@ -100,12 +174,19 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	         	} else if (jsonObject.has("mid") && jsonObject.has("close")) {
 	         		
 	         		afterConnectionClosed(session,status);
-	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid")) {
+	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
+	         			&& !jsonObject.has("block")) {
 	         	 int result = socketService.exceptid(jsonObject);
 	         	 
-	         System.out.println(result);
-	         	}  else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("toexit")) {
-	         		 int result = socketService.toexit(jsonObject);
+	   
+	         	}  else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
+	         			&& jsonObject.has("block")) {
+	         		 int result = socketService.block(jsonObject);
+	         	
+	         		 String blocked = jsonObject.optString("block", "");
+	         		String mid = jsonObject.optString("mid", "");
+	        
+	         		blockClient(mid,blocked);
 	         		 
 	         	}
 	    	 }else {  // 세션이 오프라인인 경우
@@ -113,9 +194,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    		 if(jsonObject.get("mid").equals(jsonObject.get("toId"))) {
 	        		  System.out.println("같은 사람에게는 보낼수 없습니다.");
 	        	  } else {
+	        		  
+	        		  String toId = jsonObject.optString("toId"," ");
+	        		  String mid = jsonObject.optString("mid"," ");
+	        		  
+	        		  Set<String> blockedClients = getBlockedClients(toId);
+	  	    		
+	      	    	if(!blockedClients.contains(mid)) {	
+	        		  
 	    		int result=socketService.msginsert(jsonObject);
 	    		//System.out.println("result2"+result);
 	    		//연결이안됬을떄
+	        	  }
 	        	  }
 	    	}
 	    }
@@ -216,7 +306,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    		String message = jsonObject.getString("text");
 	    		String sender = jsonObject.getString("mid");
 	    		String time = jsonObject.getString("time");
-	    	
+	    		Set<String> blockedClients = getBlockedClients(toId);
+	    		
+	    	if(!blockedClients.contains(sender)) {	
 	    		JSONObject messageObject = new JSONObject();
 	    		
 	    		messageObject.put("toId", toId);
@@ -231,20 +323,21 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    		
 	    	    if (clientSession != null && clientSession.isOpen()) {
 	    	        try {
-	    	        
-	    	        	
 	    	            clientSession.sendMessage(message2);
-	    	            
-	    	            
 	    	        } catch (IOException e) {
 	    	            e.printStackTrace();
 	    	        }
 	    	    } else {
 	    	        // 클라이언트가 로그인되지 않았거나 연결이 끊어진 경우에 대한 처리
+	    	    	
 	    	    }
+	    	   }else {
+	    		   System.out.println("차단당해서못보냄2");
+	    	   }
+	    	 }
 	    	}
 	    		
-		}
+		
 
 		@Override
 	    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
@@ -261,6 +354,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 			    if (sessionToRemove != null) {
 			    	 clients.remove(sessionToRemove);
 			    	   sendMessageToAllClients(sessionToRemove,message,session);
+			    	
 			        
 			       
 			        
@@ -298,6 +392,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 		        for (WebSocketSession clientSession : clients.values()) {
 		        	
 		        	if (clientSession != null && clientSession.isOpen() && !clientSession.equals(senderSession)) {
+		        		 String recipientId = getRecipientId(clientSession); 
+		        		 Set<String> blockedClients = getBlockedClients(recipientId);
+		        		 
+		        		  if (!blockedClients.contains(mid)) {
 		        	   try {
 			                clientSession.sendMessage(message2);
 			               
@@ -307,11 +405,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    	            e.printStackTrace();
 	    	        }
 	    	    } else {
-	    	        // 클라이언트가 로그인되지 않았거나 연결이 끊어진 경우에 대한 처리
+	    	       
+	    	    	//차단당했을경우
+	    	    	System.out.println("차단당해서못보냄");
 	    	    }
 	    		
 	       
 	    	}
-	    }
+		        }
+		        }
 }
+	   
 }

@@ -183,20 +183,29 @@ ORDER BY latest_timestamp DESC;
 	
 	</select>
 	
-	<update id="toexit" parameterType="Map">
+	<insert id="block" parameterType="Map">
 	
-	 UPDATE UserMessages
-    	SET
-        
-          toexit=1
-      	
-      
-    WHERE to_user_id= #{toId} AND from_user_id= #{mid} 
-    OR    from_user_id= #{toId} AND to_user_id= #{mid} 
+	
+	
+    INSERT INTO chatblock (blocker_id, blocked_id, timestamp)
+SELECT #{mid}, #{toId}, NOW()
+FROM dual
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM chatblock
+    WHERE blocker_id = #{mid} AND blocked_id = #{toId}
+)
  
 	
 	
-	</update>
+	</insert>
+	
+	<select id="blocklist" parameterType="String" resultType="Map">
+	SELECT blocker_id, GROUP_CONCAT(blocked_id) as blocked_ids 
+	FROM chatblock 
+	GROUP BY blocker_id
+	
+	</select>
 	
 	<update id="excludeId" parameterType="Map">
   <![CDATA[
