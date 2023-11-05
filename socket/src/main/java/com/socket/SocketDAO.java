@@ -56,7 +56,6 @@ public interface SocketDAO {
 
 
 
-	Integer fromexit(Map<String, Object> map);
 
 
 
@@ -80,6 +79,14 @@ public interface SocketDAO {
 
 
 	List<Map<String, Object>> blocklist();
+
+
+
+	int blockchk(Map<String, Object> map);
+
+
+
+	int unblock(Map<String, Object> map);
 
 
 

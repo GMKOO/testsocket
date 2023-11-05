@@ -248,6 +248,7 @@ body,html{
 	}
 	.action_menu ul li i{
 		padding-right: 10px;
+		width:30px;
 	
 	}
 	.action_menu ul li:hover{
@@ -369,3 +370,8 @@ body,html{
     color: white;
 	
 }
+.span1{
+	text-align: center;
+	
+}
+

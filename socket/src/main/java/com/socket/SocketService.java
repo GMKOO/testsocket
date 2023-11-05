@@ -116,13 +116,6 @@ public class SocketService {
 
 	
 
-	public Integer fromexit(Map<String, Object> map) {
-		
-		
-		  
-		 return socketDAO.fromexit(map);
-		
-	}
 
 
 	
@@ -146,6 +139,20 @@ public class SocketService {
 	public List<Map<String, Object>> blocklist() {
 		
 		return socketDAO.blocklist();
+	}
+
+
+	public int blockchk(Map<String, Object> map) {
+		
+		return socketDAO.blockchk(map);
+	}
+
+
+	public int unblock(JSONObject jsonObject) {
+		 Map<String, Object> map = new HashMap<>();
+		  jsonObject.keys().forEachRemaining(key -> map.put(key, jsonObject.get(key)));
+
+		return socketDAO.unblock(map);
 	}
 
 

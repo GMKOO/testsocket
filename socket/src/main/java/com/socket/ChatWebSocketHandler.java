@@ -67,35 +67,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
     
 	 @Override
 	    public void afterConnectionEstablished(WebSocketSession session) throws Exception {  //연결된 후 
-		 /*
-		 List<Map<String,Object>> blockedUsers = socketService.blocklist();
-         //System.out.println(blockedUsers.toString());
-         
-		 //웹소켓 연결후 전역으로 차단목록관리 
-         if(!blockedUsers.isEmpty()) {
-         for (Map<String, Object> blockedUser : blockedUsers) {
-        	    String blockerId = (String) blockedUser.get("blocker_id");
-        	    String blockedIds = (String) blockedUser.get("blocked_ids");
-
-        	  
-        	    String[] blockedIdArray = blockedIds.split(",");
-        	    for (String blockedId : blockedIdArray) {
-        	        blockClient(blockerId, blockedId);
-        	        
-        	    }
-        	    
-        	}
-         
-         }
-         System.out.println(blockedClients.toString()); 
-         */
+		
 		 
 		 if (session.isOpen()) {}
 		 
-		 //String mid = session.getId();
-		//System.out.println("접속세션"+mid);
 	
-	//
 	    }
 
 	    @Override
@@ -168,26 +144,56 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	        
 	         	} else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("readmsg")){
 	        		  socketService.readupdate(jsonObject);
-	        		
-	        		  
-	        		  
-	         	} else if (jsonObject.has("mid") && jsonObject.has("close")) {
+	         
+	    	 /*
+	         	else if (jsonObject.has("mid") && jsonObject.has("sender") && jsonObject.has("firstmsg")) {
+	         		String sender = jsonObject.optString("sender", "");
+	         		String mid = jsonObject.optString("mid", "");
+	         		
+	         		 JSONObject messageData = new JSONObject();
+	        	   	 messageData.put("mid", mid); // 내 아이디
+	        	   	 messageData.put("sender", sender);
+	        	   	 messageData.put("firstmsg", sender+"님과 신규 대화가 시작 되었습니다.");
+	        	   	 
+
+	        	   	 TextMessage message1 = new TextMessage(messageData.toString());
+
+	         		
+	         		sendMessageToClient(mid,message1,session); //첫메시지  알람띄우기 
+	         		
+	         		
+	         	}
+	         	*/
+	        	}else if (jsonObject.has("mid") && jsonObject.has("close")) {
 	         		
 	         		afterConnectionClosed(session,status);
 	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
-	         			&& !jsonObject.has("block")) {
+	         			&& !jsonObject.has("block") && !jsonObject.has("unblock")) {
 	         	 int result = socketService.exceptid(jsonObject);
-	         	 
+	         	
 	   
 	         	}  else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
-	         			&& jsonObject.has("block")) {
+	         			&& jsonObject.has("block") && !jsonObject.has("unblock")) {
 	         		 int result = socketService.block(jsonObject);
+	         		int result1 = socketService.exceptid(jsonObject);
 	         	
 	         		 String blocked = jsonObject.optString("block", "");
 	         		String mid = jsonObject.optString("mid", "");
 	        
 	         		blockClient(mid,blocked);
 	         		 
+	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
+	         			&& jsonObject.has("unblock") && !jsonObject.has("block")) {
+	         		System.out.println("차단해제");
+	         		
+	         		int result = socketService.unblock(jsonObject);
+		         	
+	         		 String unblock = jsonObject.optString("unblock", "");
+	         		String mid = jsonObject.optString("mid", "");
+	        
+	         		unblockClient(mid,unblock);
+	         	
+	         		
 	         	}
 	    	 }else {  // 세션이 오프라인인 경우
 	    	
@@ -299,14 +305,31 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    private void sendMessageToClient(String toId, TextMessage message1,WebSocketSession session) {
 	    	if (session.isOpen()) {
 	    		
-	    		WebSocketSession clientSession = clients.get(toId);
+	    		
 	    		
 	    		JSONObject jsonObject = new JSONObject(message1.getPayload());
+	    		
+	    		/*
+	    		if(jsonObject.has("mid") && jsonObject.has("sender") && jsonObject.has("firstmsg")) {
+	    			
+	    			//WebSocketSession clientSession = clients.get(toId);
+	    			String sender = jsonObject.optString("sender", "");
+	         		String mid = jsonObject.optString("mid", "");
+	         		String firstmsg= jsonObject.optString("firstmsg", "");
+	    			
+	    			
+	    			
+	    		} else {
+	    		*/
 	    		// "message" 필드에서 메시지 값을 추출
-	    		String message = jsonObject.getString("text");
-	    		String sender = jsonObject.getString("mid");
-	    		String time = jsonObject.getString("time");
+	    			
+	    		WebSocketSession clientSession = clients.get(toId);
+	    		
+	    		String message = jsonObject.optString("text","");
+	    		String sender = jsonObject.optString("mid","");
+	    		String time = jsonObject.optString("time","");
 	    		Set<String> blockedClients = getBlockedClients(toId);
+	    		
 	    		
 	    	if(!blockedClients.contains(sender)) {	
 	    		JSONObject messageObject = new JSONObject();
@@ -336,6 +359,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    	   }
 	    	 }
 	    	}
+	    	
 	    		
 		
 

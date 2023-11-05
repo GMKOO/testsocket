@@ -107,7 +107,7 @@ getmsgcount(function(msgcount) {
 
 
 
-
+/*
 	//##현재화면을 확인후 메시지 전달 할지 체크
 	function getCurrentScreen() {
 	    if (document.querySelector('.contacts_card')) {
@@ -118,8 +118,20 @@ getmsgcount(function(msgcount) {
 	    // 다른 상태에 따른 처리 추가 가능
 	    return '1';
 	} //겟스크린끝
+*/
+//##현재화면을 확인후 메시지 전달 할지 체크 ( 숨겨짐여부까지 확인가능)
+ 	function getCurrentScreen() {
+ 	    var contactsCard = document.querySelector('.contacts_card');
+ 	    var msgLoad = document.getElementById('msgload');
 
-
+ 	    if (contactsCard && window.getComputedStyle(contactsCard).display !== 'none') {
+ 	        return 'contacts_card';
+ 	    } else if (msgLoad && window.getComputedStyle(msgLoad).display !== 'none') {
+ 	        return 'msgload';
+ 	    }
+ 	    
+ 	    return '1'; // 
+ 	}
   
 
 

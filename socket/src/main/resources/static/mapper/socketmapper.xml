@@ -173,12 +173,11 @@ ORDER BY latest_timestamp DESC;
 	
 	</update>
 	
-	<select id="fromexit" parameterType="Map" resultType="Integer">
+	<select id="blockchk" parameterType="Map" resultType="Integer">
 	
-	SELECT COUNT(*) AS count  FROM UserMessages
+	SELECT COUNT(*) AS count  FROM chatblock
 	
-	WHERE from_user_id=#{mid} AND to_user_id= #{toId} 
-	AND fromexit =1 AND toexit =0
+	WHERE blocker_id=#{toId} AND blocked_id=#{mid}
 	
 	
 	</select>
@@ -195,10 +194,18 @@ WHERE NOT EXISTS (
     FROM chatblock
     WHERE blocker_id = #{mid} AND blocked_id = #{toId}
 )
- 
-	
 	
 	</insert>
+	
+	
+	<delete id="unblock" parameterType="Map">
+	
+		DELETE FROM chatblock
+		WHERE blocker_id = #{mid} AND blocked_id = #{toId}
+	
+	
+	</delete>
+	
 	
 	<select id="blocklist" parameterType="String" resultType="Map">
 	SELECT blocker_id, GROUP_CONCAT(blocked_id) as blocked_ids 

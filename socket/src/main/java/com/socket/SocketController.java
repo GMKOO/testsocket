@@ -98,21 +98,17 @@ public class SocketController {
 	}
 	
 	@ResponseBody
-	@GetMapping("/fromexit")
-	public String fromexit(@RequestParam Map<String,Object> map) {
+	@GetMapping("/blockchk")
+	public String blockchk(@RequestParam Map<String,Object> map) {
 	
 		
-		Integer result = socketService.fromexit(map);
+		int result = socketService.blockchk(map);
 		//System.out.println("msgcount"+result);
 		JSONObject json = new JSONObject();
-		if(result != null){	
+		
 			
 			//System.out.println("1번"+result);
 			 json.put("result", result);
-		} else {
-			 json.put("result", 0);
-				//System.out.println("2번"+result);
-		}
 	
 		 //System.out.println("0일거야 "+result);
 		return json.toString();
