@@ -156,6 +156,29 @@ public class SocketService {
 	}
 
 
+	public int firstmsgchk(Map<String, Object> map) {
+		
+
+		return socketDAO.firstmsgchk(map);
+		
+		
+	}
+
+
+	public void bnosave(Map<String, Object> map) {
+		socketDAO.bnosave(map);
+		
+	}
+
+
+	
+
+	public int bnoload(Map<String, Object> paramMap) {
+	
+		return socketDAO.bnoload(paramMap);
+	}
+
+
 	
 
 }

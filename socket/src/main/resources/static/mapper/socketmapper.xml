@@ -5,6 +5,25 @@
 
 
 
+<select id="bnoload" parameterType="Map" resultType="Integer">
+
+SELECT bno
+FROM trade 
+WHERE to_user_id = #{toId} AND from_user_id =#{mid}
+
+
+</select>
+
+<insert id="bnosave" parameterType="Map">
+	
+	INSERT INTO trade (to_user_id,from_user_id,bno,tradestatus)
+	VALUE (#{toId},#{mid},#{bno},0)
+	ON DUPLICATE KEY UPDATE bno=#{bno}
+
+	
+	</insert>
+
+
 	<select id="serchid"  parameterType="Map" resultType="Map">
 	
 SELECT
@@ -14,7 +33,11 @@ SELECT
     (SELECT mimg FROM members WHERE mid= #{toId}) AS toimg,
     (SELECT mimg FROM members WHERE mid = #{mid}) AS myimg,
     u.timestamp,
-    (select mid from members where mid=#{toId}) AS toId
+    (SELECT mid from members WHERE mid=#{toId}) AS toId,
+    (SELECT bimg FROM jboard WHERE bno=#{bno}) AS bimg,
+    (SELECT btitle FROM jboard WHERE bno=#{bno}) AS btitle,
+	(SELECT bno FROM jboard WHERE bno=#{bno}) AS bno
+    
 
 FROM UserMessages u
 
@@ -94,6 +117,7 @@ WHERE mid = #{mid}
         FROM UserMessages 
         WHERE to_user_id = #{mid} AND from_user_id = m1.from_user_id AND read_status = 1 
     ) AS read_count
+  
 FROM UserMessages m1
 WHERE m1.message_id IN (
     SELECT MAX(m2.message_id)
@@ -234,6 +258,30 @@ WHERE NOT EXISTS (
     OR (from_user_id = #{toId} AND to_user_id = #{mid})
   ]]>
 </update>
+
+<select id="firstmsgchk" parameterType="Map" resultType="Integer">
+ 
+SELECT COUNT(*) as COUNT
+FROM UserMessages
+WHERE 
+(
+  (from_user_id=#{mid} AND to_user_id=#{sender}
+  AND (exceptid ='제외' OR exceptid ='0' OR exceptid = #{mid}))
+  
+  OR
+  (from_user_id=#{mid} AND to_user_id=#{sender}
+  AND (exceptid ='제외' OR exceptid ='0' OR exceptid =#{sender}))
+  
+  or
+  (from_user_id=#{sender} AND to_user_id=#{mid}
+  AND (exceptid ='제외' OR exceptid ='0' OR exceptid = #{mid}))
+  
+  or
+    (from_user_id=#{sender} AND to_user_id=#{mid}
+  AND (exceptid ='제외' OR exceptid ='0' OR exceptid =#{sender}))
+)
+	
+	</select>
 
 	
 	

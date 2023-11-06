@@ -90,6 +90,22 @@ public interface SocketDAO {
 
 
 
+	int firstmsgchk(Map<String, Object> map);
+
+
+
+	void bnosave(Map<String, Object> map);
+
+
+
+
+
+
+
+	int bnoload(Map<String, Object> paramMap);
+
+
+
 	;
 
 }

@@ -201,9 +201,10 @@ if (session.getAttribute("mid") != null) {
 	//버튼을 클릭해서 사용자 정보를 받아서 채팅 페이지로 이동 
 	function navigateToChatPage(button) {
 		  var toId = button.textContent;
+		  var bno= 2;
 			
 
-	window.location.href = "/chat1?toId=" + toId;
+	window.location.href = "/chat1?toId=" + toId +"&bno="+bno;
 
 	}
 	/*

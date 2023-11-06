@@ -224,6 +224,8 @@ body,html{
 		color: white;
 		cursor: pointer;
 		font-size: 20px;
+			
+	margin-top: 20px;
 	}
 	.action_menu{
 		z-index: 1;
@@ -233,7 +235,7 @@ body,html{
 		color: white;
 		border-radius: 15px;
 		top: 30px;
-		right: 15px;
+		right: 24px;
 		display: none;
 	}
 	.action_menu ul{
@@ -372,6 +374,62 @@ body,html{
 }
 .span1{
 	text-align: center;
+	
+}
+
+.msgboard{
+	
+margin-top:12px;
+color: white;
+border-radius:15px;
+width: 350.76px;
+
+}
+
+.boarddetail{
+	height: 70px; 
+	width:100px;
+	border-radius:10px;
+}
+.boardtitle{
+	
+	margin-left: 10px;
+	font-size:14px;
+	height: 60px;
+
+	width: 230px;
+	float: right;
+	text-align: center;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	max-width: 220px;
+	  text-overflow: ellipsis;
+}
+.msgdetail{
+	height: 40px; 
+	margin-top: 20px;
+	
+}
+.trade{
+	width:170px;
+	height: 35px;
+	border-radius:5px;
+	background-color: #1E90FF;
+	color: white;
+	font-weight: bold;
+	border: none;
+}
+.review{
+	width:170px;
+	margin-left: 10.76px;
+	height: 35px;
+	border-radius:5px;
+	border-color: #1E90FF;
+	border-width:2px;
+	border-style: solid;
+	color:#1E90FF;
+	font-weight: bold;
 	
 }
 

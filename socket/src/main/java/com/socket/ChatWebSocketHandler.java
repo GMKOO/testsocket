@@ -108,8 +108,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    	 	jsonObject = new JSONObject(payload);
 	    	
 
-	    	 if (jsonObject.has("mid")  && !jsonObject.has("toId") 
-	    	  && !jsonObject.has("text") && !jsonObject.has("close") && !jsonObject.has("exceptid")) {
+	    	 if (jsonObject.has("mid")  && !jsonObject.has("toId") && !jsonObject.has("text") 
+	    	  && !jsonObject.has("close") && !jsonObject.has("exceptid") && !jsonObject.has("firstmsg")) {
+	    	  
 	       	
 	    		 
 	             handleInitialConnection(jsonObject, session);  // 처음 연결시 네임값만 확인하는 메서드
@@ -117,7 +118,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	      
 	            
 	             
-	         } else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("text")) {
+	         } else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("text")
+	        		 && !jsonObject.has("firstmsg")) {
 	   
 	        	  if(jsonObject.get("mid").equals(jsonObject.get("toId"))) {
 	        		  System.out.println("같은 사람에게는 보낼수 없습니다.");
@@ -142,11 +144,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	        	  	}
 	        	  }
 	        
-	         	} else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("readmsg")){
+	         	} else if (jsonObject.has("toId") && jsonObject.has("mid") && jsonObject.has("readmsg")
+	         			&& !jsonObject.has("firstmsg")){
 	        		  socketService.readupdate(jsonObject);
 	         
-	    	 /*
-	         	else if (jsonObject.has("mid") && jsonObject.has("sender") && jsonObject.has("firstmsg")) {
+	    	 
+	         	}else if (jsonObject.has("mid") && jsonObject.has("sender") && jsonObject.has("firstmsg")) {
+	         		System.out.println("이거출력22");
 	         		String sender = jsonObject.optString("sender", "");
 	         		String mid = jsonObject.optString("mid", "");
 	         		
@@ -162,18 +166,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	         		sendMessageToClient(mid,message1,session); //첫메시지  알람띄우기 
 	         		
 	         		
-	         	}
-	         	*/
-	        	}else if (jsonObject.has("mid") && jsonObject.has("close")) {
+	         	
+	         	
+	        	}else if (jsonObject.has("mid") && jsonObject.has("close") && !jsonObject.has("firstmsg")) {
 	         		
 	         		afterConnectionClosed(session,status);
 	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
-	         			&& !jsonObject.has("block") && !jsonObject.has("unblock")) {
+	         			&& !jsonObject.has("block") && !jsonObject.has("unblock") && !jsonObject.has("firstmsg")) {
 	         	 int result = socketService.exceptid(jsonObject);
 	         	
 	   
 	         	}  else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
-	         			&& jsonObject.has("block") && !jsonObject.has("unblock")) {
+	         			&& jsonObject.has("block") && !jsonObject.has("unblock") && !jsonObject.has("firstmsg")) {
 	         		 int result = socketService.block(jsonObject);
 	         		int result1 = socketService.exceptid(jsonObject);
 	         	
@@ -183,7 +187,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	         		blockClient(mid,blocked);
 	         		 
 	         	} else if(jsonObject.has("mid") && jsonObject.has("toId") && jsonObject.has("exceptid") 
-	         			&& jsonObject.has("unblock") && !jsonObject.has("block")) {
+	         			&& jsonObject.has("unblock") && !jsonObject.has("block") && !jsonObject.has("firstmsg")) {
 	         		System.out.println("차단해제");
 	         		
 	         		int result = socketService.unblock(jsonObject);
@@ -308,19 +312,43 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    		
 	    		
 	    		JSONObject jsonObject = new JSONObject(message1.getPayload());
+	    		Set<String> blockedClients = getBlockedClients(toId);
+	    		JSONObject messageObject = new JSONObject();
 	    		
-	    		/*
 	    		if(jsonObject.has("mid") && jsonObject.has("sender") && jsonObject.has("firstmsg")) {
 	    			
-	    			//WebSocketSession clientSession = clients.get(toId);
+	    			System.out.println("이거출력");
+	    			WebSocketSession clientSession = clients.get(toId);
+	    			
 	    			String sender = jsonObject.optString("sender", "");
 	         		String mid = jsonObject.optString("mid", "");
 	         		String firstmsg= jsonObject.optString("firstmsg", "");
+	         		
+	    			if(!blockedClients.contains(sender)) {	
+	    		
 	    			
+	         		messageObject.put("mid", mid);
+		    		messageObject.put("firstmsg", firstmsg);
+		    		messageObject.put("sender", sender);
 	    			
-	    			
-	    		} else {
-	    		*/
+		    		TextMessage message2 = new TextMessage(messageObject.toString());
+		    		
+		    		
+		    		
+		    	    if (clientSession != null && clientSession.isOpen()) {
+		    	        try {
+		    	            clientSession.sendMessage(message2);
+		    	        } catch (IOException e) {
+		    	            e.printStackTrace();
+		    	        }
+		    	    } 
+		    	    }else {
+			    		   System.out.println("차단당해서못보냄2");
+		    	    
+		    	    } 
+	    			}else {
+	    		
+	    		
 	    		// "message" 필드에서 메시지 값을 추출
 	    			
 	    		WebSocketSession clientSession = clients.get(toId);
@@ -328,11 +356,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    		String message = jsonObject.optString("text","");
 	    		String sender = jsonObject.optString("mid","");
 	    		String time = jsonObject.optString("time","");
-	    		Set<String> blockedClients = getBlockedClients(toId);
-	    		
 	    		
 	    	if(!blockedClients.contains(sender)) {	
-	    		JSONObject messageObject = new JSONObject();
+	    		
 	    		
 	    		messageObject.put("toId", toId);
 	    		messageObject.put("message", message);
@@ -359,7 +385,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	    	   }
 	    	 }
 	    	}
-	    	
+	    }
 	    		
 		
 
