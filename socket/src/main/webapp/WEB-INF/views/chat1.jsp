@@ -45,6 +45,8 @@
 
 	
 
+	
+
 	//const socket = new WebSocket("ws://localhost:8080/chat");
 	const socket = new SockJS("//localhost:8080/chat");
 	 // ##소켓 연결##
@@ -137,7 +139,7 @@
  		}
  		
  		serchidutil1(toId,mid,bno);
- 	
+ 
 
  	}
  	
@@ -180,6 +182,7 @@
  	}
  		*/
  	function serchidutil1(toId,mid,bno) {
+ 			
  	
 		$.ajax({
             type: "GET",
@@ -613,6 +616,10 @@ function sendMessage() {
           var formattedTime = getCurrentTimeFormatted();
           //var myimg = document.getElementById('myimg').src;
           
+          var bnoid = document.querySelector(".boarddetail");
+		var bno = bnoid.getAttribute("data-bno");
+		
+          
         	imgserch(mid, function(result) {
   				img= result;
   				
@@ -638,7 +645,8 @@ function sendMessage() {
   	        		  	"mid" : mid,
   	        		  	"toId" : toId,
   	        		  	"text" : message,
-  	        		  	"time":formattedTime
+  	        		  	"time":formattedTime,
+  	        		  	"bno":bno
   	        		
   	        		  	
   	        		 
@@ -835,8 +843,8 @@ function sendMessage() {
         		
         		
 				var bnoid = document.querySelector(".toId");
-				
 				var bno = bnoid.getAttribute("data-bno");
+				
         		var toId = clickedElement.querySelector(".toId").textContent;
         		  
         		var mid = sessionStorage.getItem("mid"); 
@@ -851,6 +859,7 @@ function sendMessage() {
         		       "toId":toId,
         		       "mid":mid,
         		       "readmsg":0
+        		      
         		       
         		       }
         		        
@@ -1097,15 +1106,230 @@ function sendMessage() {
             return formattedTime;
         }
         
+	function tradechk(toId,mid,bno,callback) {
+		
+		//alert(toId+" "+mid+" "+bno+" ");
+		
+		var trademsg;
+		var tradeclass;
+		var to_user_chk;
+		var from_user_chk;
+	
 
-
+		 $.ajax({
+             type: "GET",
+             url: "./tradechk", 
+             data: {
+             	
+             	"mid" : mid,
+             	"toId": toId,
+             	"bno" : bno
+           
+             
+             	},
+            	
+             success: function(data) {
+             	
+                 
+             	
+             var jsonData = JSON.parse(data); 
+             var json= jsonData.result;
+			  
+  
+            trademsg = json.trademsg;
+            tradeclass= json.tradeclass;
+            to_user_chk=json.to_user_chk;
+            from_user_chk=json.from_user_chk;
+            
+          	   
+          
+            
+            var arr = { 
+            	"trademsg":trademsg,
+            	"tradeclass":tradeclass,
+            	"to_user_chk":to_user_chk,
+            	"from_user_chk":from_user_chk
+            	
+            	
+            };
+          	   callback(arr); 
+          	   
+            
+            
+		  },
+		  error: function() {
+ 		
+ 	}
+     
+});
+		
+		
+	}
         	
+
+	$(document).on('click', '.trade, .traded, .trading', function(){
+		
+		var toId = document.querySelector(".toId1").textContent;
+		var mid = sessionStorage.getItem("mid"); 
+		
+		
+		var userchk = document.querySelector(".msgdetail");
+		var fromchk = userchk.getAttribute("data-fromuserchk");
+		var tochk = userchk.getAttribute("data-touserchk");
+		
+		var bnoid = document.querySelector(".boarddetail");
+		var bno = bnoid.getAttribute("data-bno");
+		
+		
+		//alert(mid+toId+bno);
+		//## 여기서 조건식으로 2일경우 클릭 안하게 문제는 또 ajax?
+			toIdbnochk(mid,toId,bno, function(json) {	
+
+				if(json ==1) {
+					
+					//to가to,다 내가 from임
+					
+					if(fromchk==1 && tochk==1 ) {
+						
+						//거래완료상태 아무동작하지않음
+						}else if (fromchk==1 && tochk==0) {
+						userchk.setAttribute('data-fromuserchk',0);
+						fromup(mid,toId,bno);
+					} else if (fromchk==0 && tochk==1){
+						userchk.setAttribute('data-fromuserchk',1);
+						fromup(mid,toId,bno);
+					} else if (fromchk==0 && tochk==0) {
+						userchk.setAttribute('data-fromuserchk',1);
+						fromup(mid,toId,bno);
+						
+					}
+					
+				} else {
+					
+						if(fromchk==1 && tochk==1 ) {
+						
+						//거래완료상태 아무동작하지않음
+						}else if (fromchk==1 && tochk==0) {
+						userchk.setAttribute('data-touserchk',1);
+						toup(mid,toId,bno);
+					} else if (fromchk==0 && tochk==1){
+						userchk.setAttribute('data-touserchk',0);
+						toup(mid,toId,bno);
+					} else if (fromchk==0 && tochk==0) {
+						userchk.setAttribute('data-touserchk',1);
+						toup(mid,toId,bno);
+						
+					}
+					
+					
+					
+					//from이다
+				}
+		
+			
+	});
+	});
+        
+	function toIdbnochk(mid,toId,bno,callback){ 
+		 $.ajax({
+           type: "GET",
+           url: "./toIdbnochk", 
+           data: {
+           	
+           	"mid" : mid,
+           	"toId": toId,
+           	"bno" : bno
+         
+           
+           	},
+          	
+           success: function(data) {
+           	
+        
+           var jsonData = JSON.parse(data); 
+           var json= jsonData.result;
+           
+           callback(json); 
+          
+		  },
+		  error: function() {
+		
+	}
+   
+});
+	}
+	
+	 //to to 버전 내가from
+	function fromup(mid,toId,bno){ 
+		 $.ajax({
+            type: "GET",
+            url: "./fromup", 
+            data: {
+            	
+            	"mid" : mid,
+            	"toId": toId,
+            	"bno" : bno
+          
+            
+            	},
+           	
+            success: function(data) {
+            	
+         
+            //var jsonData = JSON.parse(data); 
+            //var json= jsonData.result;
+
+			  $("#msgload").remove();
+            serchidutil1(toId,mid,bno);
+           
+           
+		  },
+		  error: function() {
+		
+	}
+    
+});
+	}
+	 
+	 //to from버전내가to임
+	function toup(mid,toId,bno){ 
+		 $.ajax({
+           type: "GET",
+           url: "./toup", 
+           data: {
+           	
+           	"mid" : mid,
+           	"toId": toId,
+           	"bno" : bno
+         
+           
+           	},
+          	
+           success: function(data) {
+           	
+        
+           //var jsonData = JSON.parse(data); 
+           //var json= jsonData.result;
+
+			  $("#msgload").remove();
+           serchidutil1(toId,mid,bno);
+          
+          
+		  },
+		  error: function() {
+		
+	}
+   
+});
+	}
         	
         	//## 4. DB자료로 이전 대화창 생성 함수 ##
         	function msgload(msg) {
         	
-        		 
-       	
+        		
+        		
+       			
+        		
         		var conversationHTML = "";
         		var message = "";
         		var toimg = "";
@@ -1136,7 +1360,10 @@ function sendMessage() {
     	     var bimg;
     	     var btitle;
     	     var bno;
-            	
+            
+    	  
+    	    
+    	     
             	  blockchk(mid,toId, function(result) {
             		  
          	    	    var block = result.block;
@@ -1205,12 +1432,19 @@ function sendMessage() {
         				
             		
         		}
-        	
         		
+        		 //여기 ajax 넣어서 거래하기 버튼 체크 하기 
+        		 
+        		 tradechk(toId,mid,bno, function(arr) {
     	   
 
+        	var tradeclass =arr.tradeclass;
+        	var trademsg =arr.trademsg;
+        	var touserchk =arr.to_user_chk;
+        	var fromuserchk =arr.from_user_chk;
+        	
+        	//alert(tradeclass);
     	   
-    	       
     	       //## ajax db에서 불러와야됨
  				//## 임시 사용 board이미지
         		//var detail = "https://image.van-go.co.kr/place_main/2022/05/12/21736/7c2d3fb58557410689da918839a9747c_750O.jpg";
@@ -1233,8 +1467,10 @@ function sendMessage() {
         		    contenthead +='<li type="button" onclick="'+block+'"><span class="span1"><i class="fas fa-ban"></i></span><span class="span2"> '+block1+'</span></li>';
         		    contenthead +='<li type="button" onclick="toggleActionMenu()"><span class="span1"><i class="fas fa-times"></i></span><span class="span2"> 취소</span></li>';
         		    
-        		    contenthead +='</ul></div><div class="msgdetail"><button class="trade">거래하기</button><button class="review">리뷰작성</button></div><div class="msgboard"><img src="'+bimg+'"';
-        		    contenthead +=' class="boarddetail"><span class="boardtitle">'+btitle+'</span></div></div><div class="card-body msg_card_body" id="chat">';
+        		    contenthead +='</ul></div><div class="msgdetail" data-fromuserchk="'+fromuserchk+'" data-touserchk="'+touserchk+'">';
+        		    contenthead +='<button class="'+tradeclass+'"> '+trademsg+'</button><button class="review"'; 
+        		    contenthead +='>리뷰작성</button></div><div class="msgboard"><img src="'+bimg+'" class="boarddetail"';
+        		    contenthead +=' data-bno="'+bno+'"><span class="boardtitle">'+btitle+'</span></div></div><div class="card-body msg_card_body" id="chat">';
         
         		    
         		
@@ -1267,6 +1503,7 @@ function sendMessage() {
         		
         	           const goBackButton = document.getElementById('goBack');
         	           goBackButton.addEventListener('click', goBack);
+        		 });
     	      	}); 
         	           
         	}

@@ -3,23 +3,92 @@
 
 <mapper namespace="com.socket.SocketDAO">
 
+<select id="bnochk" parameterType="Map" resultType="Integer">
 
+SELECT count(*) as count
+FROM trade
+WHERE (to_user_id=#{toId} AND from_user_id=#{mid} AND bno=#{bno})
+OR (from_user_id=#{toId} AND to_user_id=#{mid} AND bno=#{bno})
+
+</select>
+
+<select id="toIdbnochk" parameterType="Map" resultType="Integer">
+
+SELECT count(*) as count
+FROM trade
+WHERE to_user_id=#{toId} AND from_user_id=#{mid} AND bno=#{bno}
+
+</select>
+
+<update id="toup" parameterType="Map">
+    UPDATE trade
+    SET
+      to_user_chk = CASE
+            WHEN to_user_id = #{mid} THEN
+              CASE
+                  WHEN to_user_chk = 0 THEN 1
+           		  WHEN to_user_chk = 1 THEN 0
+  			 	WHEN to_user_chk = 1 AND from_user_chk = 1 
+   				THEN to_user_chk
+                    ELSE 0
+                END
+            ELSE to_user_chk
+        END
+        
+    WHERE 
+    (to_user_id = #{mid} AND from_user_id = #{toId} AND bno = #{bno})
+</update>
+
+<update id="fromup" parameterType="Map">
+    UPDATE trade
+    SET
+      from_user_chk = CASE
+            WHEN to_user_id = #{toId} THEN
+              CASE
+                  WHEN from_user_chk = 0 THEN 1
+           		  WHEN from_user_chk = 1 THEN 0
+  			 	WHEN to_user_chk = 1 AND from_user_chk = 1 
+   				THEN from_user_chk
+                    ELSE 0
+                END
+            ELSE from_user_chk
+        END
+        
+    WHERE 
+    (to_user_id = #{toId} AND from_user_id = #{mid}  AND bno = #{bno})
+</update>
+
+
+<select id="tradechk" parameterType="Map" resultType="Map">
+
+SELECT to_user_chk,from_user_chk
+FROM trade
+WHERE to_user_id=#{toId} AND from_user_id=#{mid} AND bno=#{bno}
+OR to_user_id=#{mid} AND from_user_id=#{toId} AND bno=#{bno}
+
+</select>
 
 <select id="bnoload" parameterType="Map" resultType="Integer">
 
 SELECT bno
-FROM trade 
-WHERE to_user_id = #{toId} AND from_user_id =#{mid}
-
+FROM UserMessages
+WHERE to_user_id = #{toId} AND from_user_id = #{mid}
+ORDER BY timestamp DESC
+LIMIT 1;
 
 </select>
 
 <insert id="bnosave" parameterType="Map">
 	
-	INSERT INTO trade (to_user_id,from_user_id,bno,tradestatus)
-	VALUE (#{toId},#{mid},#{bno},0)
-	ON DUPLICATE KEY UPDATE bno=#{bno}
+	
 
+INSERT INTO trade  (to_user_id,from_user_id,bno,tradestatus,to_user_chk,from_user_chk)
+VALUES (#{toId},#{mid},#{bno},0,0,0)
+ON DUPLICATE KEY UPDATE 
+	 bno = #{bno},
+    to_user_chk = 0,
+    from_user_chk = 0 
+	
 	
 	</insert>
 
@@ -52,8 +121,8 @@ WHERE (u.from_user_id = #{mid} AND u.to_user_id = #{toId}
 	<insert id="msginsert" parameterType="Map">
 
 
-INSERT INTO UserMessages (to_user_id, content, from_user_id, timestamp, read_status)
-VALUES (#{toId}, #{text}, #{mid}, NOW(), 1)
+INSERT INTO UserMessages (to_user_id, content, from_user_id, timestamp, read_status,bno)
+VALUES (#{toId}, #{text}, #{mid}, NOW(), 1,#{bno})
 
 
 	</insert>
@@ -72,8 +141,8 @@ VALUES (#{toId}, #{text}, #{mid}, NOW(), 1)
 	
 	<insert id="Firstmsg" parameterType="Map">
 	
-	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp,read_status,deletemsg)
-	VALUE (#{toId},#{message},#{mid},NOW(),#{read_status},#{deletemsg})
+	INSERT INTO UserMessages (to_user_id,content,from_user_id,timestamp,read_status,deletemsg,bno)
+	VALUE (#{toId},#{message},#{mid},NOW(),#{read_status},#{deletemsg},#{bno})
 	
 	</insert>
 

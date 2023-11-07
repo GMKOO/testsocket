@@ -150,7 +150,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler{
 	         
 	    	 
 	         	}else if (jsonObject.has("mid") && jsonObject.has("sender") && jsonObject.has("firstmsg")) {
-	         		System.out.println("이거출력22");
+	         		//System.out.println("이거출력22");
 	         		String sender = jsonObject.optString("sender", "");
 	         		String mid = jsonObject.optString("mid", "");
 	         		

@@ -19,6 +19,7 @@ public class SocketService {
 		
 		 String toId = (String) map.get("toId");
 	        String mid = (String) map.get("mid");
+	        String bno= (String) map.get("bno");
 	    
 		if (isFirstConversation(toId, mid)) {
             // 첫 대화인 경우 초기 메시지를 데이터베이스에 삽입
@@ -31,6 +32,7 @@ public class SocketService {
 			map.put("read_status", 0);
 			map.put("deletemsg", 2);
 			map.put("exceptid", "제외");
+			map.put("bno", bno);
 			//System.out.println(map.toString());
 		int result=socketDAO.Firstmsg(map);
 		//System.out.println("첫메시지 반환"+result);
@@ -177,6 +179,37 @@ public class SocketService {
 	
 		return socketDAO.bnoload(paramMap);
 	}
+
+
+	public Map<String, Object> tradechk(Map<String, Object> map) {
+	
+		return socketDAO.tradechk(map);
+	}
+
+
+	public int fromup(Map<String, Object> map) {
+		
+		return socketDAO.fromup(map);
+	}
+
+
+	public int toIdbnochk(Map<String, Object> map) {
+		return socketDAO.toIdbnochk(map);
+	}
+
+
+	public int toup(Map<String, Object> map) {
+		
+		return socketDAO.toup(map);
+	}
+
+
+	public int bnochk(Map<String, Object> map) {
+	
+		return socketDAO.bnochk(map);
+	}
+
+
 
 
 	

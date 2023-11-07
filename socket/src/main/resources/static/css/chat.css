@@ -393,7 +393,7 @@ width: 350.76px;
 }
 .boardtitle{
 	
-	margin-left: 10px;
+	
 	font-size:14px;
 	height: 60px;
 
@@ -403,7 +403,7 @@ width: 350.76px;
 	align-items: center;
 	display: flex;
 	justify-content: center;
-	max-width: 220px;
+	max-width: 230px;
 	  text-overflow: ellipsis;
 }
 .msgdetail{
@@ -433,3 +433,24 @@ width: 350.76px;
 	
 }
 
+
+.trading {
+	
+	width:170px;
+	height: 35px;
+	border-radius:5px;
+	color: white;
+	font-weight: bold;
+	border: none;
+	background-color: #ff791e;
+}
+
+.traded {
+	width:170px;
+	height: 35px;
+	border-radius:5px;
+	color: white;
+	font-weight: bold;
+	border: none;
+	background-color: #ff1e1e;
+}
